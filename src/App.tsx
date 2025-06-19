@@ -17,6 +17,7 @@ import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
 import HomePage from "./pages/HomePage";
+import ChatBotPage from "./pages/ChatBotPage";
 
 export default function App() {
   return (
@@ -26,6 +27,8 @@ export default function App() {
         <Routes>
           {/* Public Home Page */}
           <Route path="/" element={<HomePage />} />
+          {/* ChatBot Page */}
+          <Route path="/chat" element={<ChatBotPage />} />
 
           {/* Admin Dashboard Layout */}
           <Route path="/admin" element={<AppLayout />}>
