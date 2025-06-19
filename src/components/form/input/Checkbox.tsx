@@ -1,21 +1,14 @@
 import type React from "react";
 
-interface CheckboxProps {
+interface CheckboxProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
-  checked: boolean;
-  className?: string;
-  id?: string;
-  onChange: (checked: boolean) => void;
-  disabled?: boolean;
 }
 
 const Checkbox: React.FC<CheckboxProps> = ({
   label,
-  checked,
-  id,
-  onChange,
   className = "",
   disabled = false,
+  ...rest
 }) => {
   return (
     <label
@@ -25,15 +18,13 @@ const Checkbox: React.FC<CheckboxProps> = ({
     >
       <div className="relative w-5 h-5">
         <input
-          id={id}
           type="checkbox"
           className={`w-5 h-5 appearance-none cursor-pointer dark:border-gray-700 border border-gray-300 checked:border-transparent rounded-md checked:bg-brand-500 disabled:opacity-60 
           ${className}`}
-          checked={checked}
-          onChange={(e) => onChange(e.target.checked)}
           disabled={disabled}
+          {...rest}
         />
-        {checked && (
+        {rest.checked && (
           <svg
             className="absolute transform -translate-x-1/2 -translate-y-1/2 pointer-events-none top-1/2 left-1/2"
             xmlns="http://www.w3.org/2000/svg"
