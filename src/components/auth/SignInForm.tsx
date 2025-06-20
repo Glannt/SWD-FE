@@ -123,7 +123,7 @@ const SignInForm = ({ onSwitchMode }: SignInFormProps) => {
             <Checkbox
               id="keep-logged-in"
               checked={keepLoggedIn}
-              onCheckedChange={(checked) => setKeepLoggedIn(checked as boolean)}
+              onChange={(e) => setKeepLoggedIn(e.target.checked)}
             />
             <Label
               htmlFor="keep-logged-in"

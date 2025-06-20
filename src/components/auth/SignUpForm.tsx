@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router";
-import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from "../../icons";
+import { ChevronLeftIcon } from "../../icons";
 import Label from "../form/Label";
 import Input from "../form/input/InputField";
 import Checkbox from "../form/input/Checkbox";
@@ -145,7 +145,7 @@ const SignUpForm = ({ onSwitchMode }: SignUpFormProps) => {
               <Checkbox
                 id="agree-terms"
                 checked={agreeTerms}
-                onCheckedChange={(checked) => setAgreeTerms(checked as boolean)}
+                onChange={(checked) => setAgreeTerms(checked.target.checked)}
               />
               <Label
                 htmlFor="agree-terms"
