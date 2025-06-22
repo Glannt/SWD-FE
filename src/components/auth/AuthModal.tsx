@@ -5,18 +5,13 @@ import SignUpForm from "./SignUpForm";
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
-  initialMode?: "signin" | "signup";
+  initialMode?: string | undefined;
 }
 
-const AuthModal = ({
-  isOpen,
-  onClose,
-  initialMode = "signin",
-}: AuthModalProps) => {
-  const [mode, setMode] = useState<"signin" | "signup">(initialMode);
+const AuthModal = ({ isOpen, onClose, initialMode }: AuthModalProps) => {
+  const [mode, setMode] = useState<string | undefined>(initialMode);
 
   if (!isOpen) return null;
-
   return (
     <div className="fixed inset-0 z-50">
       {/* Backdrop với hiệu ứng mờ */}
