@@ -1,4 +1,28 @@
 import React, { useState, useRef, useEffect } from "react";
+import Header from "../components/layout/Header";
+
+// Mock data cho lịch sử chat
+const chatHistory = [
+  { id: 1, name: "Lò sấy cao tần" },
+  { id: 2, name: "Keo sữa và xúc tác" },
+  { id: 3, name: "Các loại vải áo dài" },
+  { id: 4, name: "Vải Umi là gì" },
+  { id: 5, name: "Tối ưu chính sách bảo mật" },
+  { id: 6, name: "Tổng hợp khảo sát du lịch" },
+  { id: 7, name: "Trích xuất nội dung web" },
+  { id: 8, name: "Du lịch công nghệ và cá nhân hóa" },
+  { id: 9, name: "Tính vải may đồng phục" },
+];
+
+type ChatMessage = { from: "bot" | "user"; text: string };
+const mockChatContent: Record<number, ChatMessage[]> = {
+  1: [
+    { from: "bot", text: "Xin chào! Bạn cần tư vấn về lò sấy cao tần?" },
+    { from: "user", text: "Vâng, cho mình hỏi về nguyên lý hoạt động." },
+  ],
+  2: [{ from: "bot", text: "Bạn muốn biết về keo sữa hay xúc tác?" }],
+  // ... các đoạn chat khác
+};
 
 const mockBotReply = (userMsg: string) => {
   // Giả lập trả lời của bot
@@ -15,6 +39,7 @@ const mockBotReply = (userMsg: string) => {
 };
 
 const ChatBotPage: React.FC = () => {
+  const [selectedChat, setSelectedChat] = useState<number>(chatHistory[0].id);
   const [messages, setMessages] = useState([
     {
       from: "bot",
@@ -46,59 +71,76 @@ const ChatBotPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center py-8">
-      {/* Header cam */}
-      <div className="w-full max-w-2xl rounded-t-xl bg-orange-500 flex items-center px-6 py-3 gap-4 shadow-lg">
-        {/* <img src="/public/images/logo/logo.svg" alt="logo" className="h-10" /> */}
-        <span className="text-white text-xl font-semibold flex-1">
-          FPT Career Chatbot
-        </span>
-        <span className="text-white text-sm">
-          ✉️ Email: daihocfpt@fpt.edu.vn
-        </span>
-      </div>
-      {/* Khung chat */}
-      <div className="w-full max-w-2xl bg-white rounded-b-xl shadow-lg flex flex-col flex-1 min-h-[500px] pb-4 px-4 pt-4 overflow-y-auto">
-        <div className="flex flex-col gap-4 flex-1">
-          {messages.map((msg, idx) => (
-            <div
-              key={idx}
-              className={`flex ${
-                msg.from === "user" ? "justify-end" : "justify-start"
-              }`}
-            >
+    <>
+      <Header />
+      <div className="flex h-screen bg-gray-50">
+        {/* Sidebar lịch sử chat */}
+        <aside className="w-72 bg-white border-r border-gray-200 p-4 overflow-y-auto">
+          <h2 className="text-lg font-bold mb-4">Đoạn chat</h2>
+          <ul>
+            {chatHistory.map((chat) => (
+              <li
+                key={chat.id}
+                className={`p-2 rounded cursor-pointer mb-1 transition font-medium ${
+                  selectedChat === chat.id
+                    ? "bg-orange-100 text-orange-700"
+                    : "hover:bg-gray-100"
+                }`}
+                onClick={() => setSelectedChat(chat.id)}
+              >
+                {chat.name}
+              </li>
+            ))}
+          </ul>
+        </aside>
+
+        {/* Main chat area */}
+        <main className="flex-1 flex flex-col h-full">
+          {/* Header chat */}
+          <header className="h-16 flex items-center px-6 border-b bg-white shadow-sm">
+            <span className="text-xl font-semibold text-gray-800">
+              {chatHistory.find((c) => c.id === selectedChat)?.name}
+            </span>
+          </header>
+          {/* Nội dung chat */}
+          <div className="flex-1 p-6 overflow-y-auto flex flex-col gap-2">
+            {(
+              mockChatContent[selectedChat] || [
+                { from: "bot", text: "Chưa có nội dung chat cho chủ đề này." },
+              ]
+            ).map((msg: ChatMessage, idx: number) => (
               <div
-                className={`rounded-xl px-4 py-3 max-w-[80%] whitespace-pre-line text-base shadow-sm ${
+                key={idx}
+                className={`max-w-[70%] px-4 py-2 rounded-lg shadow text-base font-sans ${
                   msg.from === "user"
-                    ? "bg-blue-500 text-white self-end"
-                    : "bg-gray-100 text-gray-800 self-start"
+                    ? "bg-orange-500 text-white self-end"
+                    : "bg-gray-200 text-gray-800 self-start"
                 }`}
               >
                 {msg.text}
               </div>
-            </div>
-          ))}
-          <div ref={messagesEndRef} />
-        </div>
-        {/* Input */}
-        <div className="flex items-center gap-2 mt-4">
-          <input
-            type="text"
-            className="flex-1 rounded-full border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400"
-            placeholder="Nhập câu hỏi của bạn..."
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-          />
-          <button
-            className="bg-orange-500 hover:bg-orange-600 text-white font-semibold px-6 py-2 rounded-full transition"
-            onClick={handleSend}
-          >
-            Gửi
-          </button>
-        </div>
+            ))}
+          </div>
+          {/* Ô nhập chat (tùy chọn, có thể thêm sau) */}
+          <div className="flex items-center gap-2 mt-4">
+            <input
+              type="text"
+              className="flex-1 rounded-full border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400"
+              placeholder="Nhập câu hỏi của bạn..."
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+            />
+            <button
+              className="bg-orange-500 hover:bg-orange-600 text-white font-semibold px-6 py-2 rounded-full transition"
+              onClick={handleSend}
+            >
+              Gửi
+            </button>
+          </div>
+        </main>
       </div>
-    </div>
+    </>
   );
 };
 

@@ -11,9 +11,17 @@ interface SignUpFormProps {
 const SignUpForm = ({ onSwitchMode }: SignUpFormProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const [agreeTerms, setAgreeTerms] = useState(false);
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
+    if (password !== confirmPassword) {
+      setError("Mật khẩu xác nhận không khớp.");
+      return;
+    }
     // Xử lý đăng ký ở đây
   };
 
@@ -58,16 +66,6 @@ const SignUpForm = ({ onSwitchMode }: SignUpFormProps) => {
           </div>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <Label htmlFor="name">Họ và tên</Label>
-              <Input
-                id="name"
-                type="text"
-                placeholder="Nhập họ và tên của bạn"
-                required
-              />
-            </div>
-
-            <div>
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
@@ -85,6 +83,8 @@ const SignUpForm = ({ onSwitchMode }: SignUpFormProps) => {
                   type={showPassword ? "text" : "password"}
                   placeholder="Nhập mật khẩu của bạn"
                   required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                 />
                 <button
                   type="button"
@@ -129,6 +129,20 @@ const SignUpForm = ({ onSwitchMode }: SignUpFormProps) => {
                 </button>
               </div>
             </div>
+
+            <div>
+              <Label htmlFor="confirm-password">Xác nhận mật khẩu</Label>
+              <Input
+                id="confirm-password"
+                type={showPassword ? "text" : "password"}
+                placeholder="Nhập lại mật khẩu"
+                required
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+              />
+            </div>
+
+            {error && <div className="text-red-500 text-sm">{error}</div>}
 
             <div className="flex items-center">
               <Checkbox
