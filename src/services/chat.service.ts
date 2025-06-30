@@ -7,42 +7,46 @@ import {
 } from "../types/api";
 
 class ChatService {
-  private readonly baseUrl = "/chatbot";
+  private readonly baseUrl = "/app";
 
   async askQuestion(request: AskQuestionRequest): Promise<AskQuestionResponse> {
     return apiPost<AskQuestionResponse>(`${this.baseUrl}/ask`, request);
   }
 
-  async getChatSessions(): Promise<ChatSession[]> {
-    return apiGet<ChatSession[]>("/chatsession");
+  async getUserSessions(userId: string): Promise<ChatSession[]> {
+    return apiGet<ChatSession[]>(`/chatsession/user/${userId}`);
   }
 
-  async getChatSession(sessionId: string): Promise<ChatSession> {
+  async getSession(sessionId: string): Promise<ChatSession> {
     return apiGet<ChatSession>(`/chatsession/${sessionId}`);
   }
 
-  async createChatSession(title?: string): Promise<ChatSession> {
-    return apiPost<ChatSession>("/chatsession", { title: title || "New Chat" });
+  async getSessionMessages(sessionId: string): Promise<ChatMessage[]> {
+    return apiGet<ChatMessage[]>(`/chatsession/${sessionId}/messages`);
   }
 
-  async deleteChatSession(sessionId: string): Promise<void> {
-    return apiPost(`/chatsession/${sessionId}/delete`);
-  }
-
-  async getMessages(sessionId: string): Promise<ChatMessage[]> {
-    const session = await this.getChatSession(sessionId);
-    return session.messages;
+  async createSession(
+    userId?: string,
+    anonymousId?: string
+  ): Promise<ChatSession> {
+    return apiPost<ChatSession>("/chatsession/create", {
+      userId,
+      anonymousId,
+    });
   }
 
   async addMessage(
     sessionId: string,
+    sender: "user" | "bot" | "staff",
     content: string,
-    sender: "user" | "ai"
+    intent?: string,
+    confidence?: number
   ): Promise<ChatMessage> {
-    return apiPost<ChatMessage>("/chatsession/message", {
-      sessionId,
-      content,
+    return apiPost<ChatMessage>(`/chatsession/${sessionId}/messages`, {
       sender,
+      content,
+      intent,
+      confidence,
     });
   }
 }

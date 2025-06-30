@@ -117,30 +117,57 @@ export interface UserProfile {
 // Chat Types
 export interface ChatMessage {
   id: string;
+  chat_message_id: string;
   content: string;
-  sender: "user" | "ai";
-  timestamp: string;
-  sessionId: string;
+  sender: "user" | "bot" | "staff";
+  intent?: string;
+  confidence?: number;
+  timestamp?: string;
+  sessionId?: string;
 }
 
 export interface ChatSession {
-  id: string;
-  userId: string;
-  title: string;
-  createdAt: string;
-  updatedAt: string;
-  messages: ChatMessage[];
+  sessionId: string;
+  status: string;
+  startedAt?: string;
+  lastActivity?: string;
 }
 
 export interface AskQuestionRequest {
   question: string;
   sessionId?: string;
+  user_id?: string;
 }
 
 export interface AskQuestionResponse {
   answer: string;
-  sessionId: string;
-  sources?: string[];
+  sessionId?: string;
+  citations?: Citation[];
+  usage?: TokenUsage;
+}
+
+export interface Citation {
+  position: number;
+  references: Reference[];
+}
+
+export interface Reference {
+  pages: string[];
+  file: {
+    id: string;
+    name: string;
+    metadata: unknown;
+    createdOn?: string;
+    updatedOn?: string;
+    status: string;
+    size: number;
+  };
+}
+
+export interface TokenUsage {
+  prompt_tokens: number;
+  completion_tokens: number;
+  total_tokens: number;
 }
 
 // Campus Types
