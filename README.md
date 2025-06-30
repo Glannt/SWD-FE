@@ -1,192 +1,206 @@
-# TailAdmin React - Free React Tailwind Admin Dashboard Template
+# AI Chatbot ACC - Frontend
 
-TailAdmin is a free and open-source admin dashboard template built on **React and Tailwind CSS**, providing developers
-with everything they need to create a comprehensive, data-driven back-end,
-dashboard, or admin panel solution for upcoming web projects.
+## Tổng quan
 
-With TailAdmin, you get access to all the necessary dashboard UI components, elements, and pages required to build a
-feature-rich and complete dashboard or admin panel. Whether you're building dashboard or admin panel for a complex web
-application or a simple website, TailAdmin is the perfect solution to help you get up and running quickly.
+Frontend application cho hệ thống AI Chatbot ACC (Admission Career Counseling) được xây dựng bằng React 19 + TypeScript.
 
-![TailAdmin React.js Dashboard Preview](./banner.png)
+## Công nghệ sử dụng
 
-## Overview
+- **Framework**: React 19 + TypeScript
+- **Styling**: Tailwind CSS
+- **State Management**: React Context + Custom Hooks
+- **Routing**: React Router v7
+- **HTTP Client**: Axios
+- **Build Tool**: Vite
 
-TailAdmin provides essential UI components and layouts for building feature-rich, data-driven admin dashboards and
-control panels. It's built on:
+## Cài đặt
 
-- React 19
-- TypeScript
-- Tailwind CSS
+### Yêu cầu hệ thống
 
-### Quick Links
+- Node.js >= 18.0.0
+- npm hoặc pnpm
 
-- [✨ Visit Website](https://tailadmin.com)
-- [📄 Documentation](https://tailadmin.com/docs)
-- [⬇️ Download](https://tailadmin.com/download)
-- [🖌️ Figma Design File (Community Edition)](https://www.figma.com/community/file/1214477970819985778)
-- [⚡ Get PRO Version](https://tailadmin.com/pricing)
-
-### Demos
-
-- [Free Version](https://free-react-demo.tailadmin.com/)
-- [Pro Version](https://react-demo.tailadmin.com)
-
-### Other Versions
-
-- [HTML Version](https://github.com/TailAdmin/tailadmin-free-tailwind-dashboard-template)
-- [Next.js Version](https://github.com/TailAdmin/free-nextjs-admin-dashboard)
-- [Vue.js Version](https://github.com/TailAdmin/vue-tailwind-admin-dashboard)
-
-## Installation
-
-### Prerequisites
-
-To get started with TailAdmin, ensure you have the following prerequisites installed and set up:
-
-- Node.js 18.x or later (recommended to use Node.js 20.x or later)
-
-### Cloning the Repository
-
-Clone the repository using the following command:
+### Cài đặt dependencies
 
 ```bash
-git clone https://github.com/TailAdmin/free-react-tailwind-admin-dashboard.git
+npm install
 ```
 
-> Windows Users: place the repository near the root of your drive if you face issues while cloning.
+### Cấu hình environment
 
-1. Install dependencies:
+1. Copy file `env.example` thành `.env`
 
-   ```bash
-   npm install
-   # or
-   yarn install
-   ```
+```bash
+cp env.example .env
+```
 
-   > Use the `--legacy-peer-deps` flag, if you face issues while installing.
+2. Cập nhật các biến môi trường trong `.env`:
 
-2. Start the development server:
-   ```bash
-   npm run dev
-   # or
-   yarn dev
-   ```
+```env
+VITE_API_URL=http://localhost:3000/api
+VITE_NODE_ENV=development
+```
 
-## Components
+### Chạy development server
 
-TailAdmin is a pre-designed starting point for building a web-based dashboard using React.js and Tailwind CSS. The
-template includes:
+```bash
+npm run dev
+```
 
-- Sophisticated and accessible sidebar
-- Data visualization components
-- Prebuilt profile management and 404 page
-- Tables and Charts(Line and Bar)
-- Authentication forms and input elements
-- Alerts, Dropdowns, Modals, Buttons and more
-- Can't forget Dark Mode 🕶️
+Ứng dụng sẽ chạy tại `http://localhost:5173`
 
-All components are built with React and styled using Tailwind CSS for easy customization.
+## Cấu trúc dự án
 
-## Feature Comparison
+```
+src/
+├── components/          # React components
+├── context/            # React Context providers
+├── hooks/              # Custom hooks
+│   ├── useAuth.ts      # Authentication hook
+│   └── useChat.ts      # Chat management hook
+├── pages/              # Page components
+├── services/           # API services
+│   ├── auth.service.ts # Authentication service
+│   ├── chat.service.ts # Chat service
+│   ├── campus.service.ts # Campus service
+│   └── index.ts        # Service exports
+├── types/              # TypeScript types
+│   └── api.ts          # API types
+├── utils/              # Utility functions
+│   └── api.ts          # Axios configuration
+└── App.tsx             # Main App component
+```
 
-### Free Version
+## API Services
 
-- 1 Unique Dashboard
-- 30+ dashboard components
-- 50+ UI elements
-- Basic Figma design files
-- Community support
+### Authentication Service
 
-### Pro Version
+```typescript
+import { authService } from "./services";
 
-- 5 Unique Dashboards: Analytics, Ecommerce, Marketing, CRM, Stocks (more coming soon)
-- 400+ dashboard components and UI elements
-- Complete Figma design file
-- Email support
+// Login
+await authService.login({ email, password });
 
-To learn more about pro version features and pricing, visit our [pricing page](https://tailadmin.com/pricing).
+// Register
+await authService.register({ email, password, fullName });
 
-## Changelog
+// Logout
+await authService.logout();
 
-### Version 2.0.2 - [March 25, 2025]
+// Check authentication
+const isAuth = authService.isAuthenticated();
+```
 
-- Upgraded to React 19
-- Included overrides for packages to prevent peer dependency errors.
-- Migrated from react-flatpickr to flatpickr package for React 19 support
+### Chat Service
 
-### Version 2.0.1 - [February 27, 2025]
+```typescript
+import { chatService } from "./services";
 
-#### Update Overview
+// Ask question to AI
+const response = await chatService.askQuestion({ question: "Hello" });
 
-- Upgraded to Tailwind CSS v4 for better performance and efficiency.
-- Updated class usage to match the latest syntax and features.
-- Replaced deprecated class and optimized styles.
+// Get chat sessions
+const sessions = await chatService.getChatSessions();
 
-#### Next Steps
+// Create new session
+const session = await chatService.createChatSession("New Chat");
+```
 
-- Run npm install or yarn install to update dependencies.
-- Check for any style changes or compatibility issues.
-- Refer to the Tailwind CSS v4 [Migration Guide](https://tailwindcss.com/docs/upgrade-guide) on this release. if needed.
-- This update keeps the project up to date with the latest Tailwind improvements. 🚀
+### Campus Service
 
-### Version 2.0.0 - [February 2025]
+```typescript
+import { campusService } from "./services";
 
-A major update with comprehensive redesign and modern React patterns implementation.
+// Get all campuses
+const campuses = await campusService.getCampuses();
 
-#### Major Improvements
+// Get programs
+const programs = await campusService.getPrograms();
+```
 
-- Complete UI redesign with modern React patterns
-- New features: collapsible sidebar, chat, and calendar
-- Improved performance and accessibility
-- Updated data visualization using ApexCharts
+## Custom Hooks
 
-#### Key Features
+### useAuth Hook
 
-- Redesigned dashboards (Ecommerce, Analytics, Marketing, CRM)
-- Enhanced navigation with React Router integration
-- Advanced tables with sorting and filtering
-- Calendar with drag-and-drop support
-- New UI components and improved existing ones
+```typescript
+import { useAuth } from "./hooks/useAuth";
 
-#### Breaking Changes
+const { user, isAuthenticated, login, logout } = useAuth();
+```
 
-- Updated sidebar component API
-- Migrated charts to ApexCharts
-- Revised authentication system
+### useChat Hook
 
-[Read more](https://tailadmin.com/docs/update-logs/react) on this release.
+```typescript
+import { useChat } from "./hooks/useChat";
 
-### Version 1.3.7 - [June 20, 2024]
+const { messages, sendMessage, sessions } = useChat();
+```
 
-#### Enhancements
+## Axios Configuration
 
-1. Remove Repetition of DefaultLayout in every Pages
-2. Add ClickOutside Component for reduce repeated functionality in Header Message, Notification and User Dropdowns.
+Axios được cấu hình với:
 
-### Version 1.3.6 - [Jan 31, 2024]
+- **Base URL**: Tự động từ environment variable
+- **Request Interceptor**: Tự động thêm JWT token
+- **Response Interceptor**: Xử lý lỗi authentication và redirect
+- **Error Handling**: Tự động redirect về login khi token hết hạn
 
-#### Enhancements
+## Development
 
-1. Integrate flatpickr in [Date Picker/Form Elements]
-2. Change color after select an option [Select Element/Form Elements].
-3. Make it functional [Multiselect Dropdown/Form Elements].
-4. Make best value editable [Pricing Table One/Pricing Table].
-5. Rearrange Folder structure.
+### Build production
 
-### Version 1.2.0 - [Apr 28, 2023]
+```bash
+npm run build
+```
 
-- Add Typescript in TailAdmin React.
+### Preview production build
 
-### Version 1.0.0 - Initial Release - [Mar 13, 2023]
+```bash
+npm run preview
+```
 
-- Initial release of TailAdmin React.
+### Linting
+
+```bash
+npm run lint
+```
+
+## Tích hợp với Backend
+
+Frontend được thiết kế để tích hợp với backend NestJS tại:
+
+- **Development**: `http://localhost:3000/api`
+- **Production**: Cấu hình qua `VITE_API_URL`
+
+### API Endpoints chính
+
+- `/auth/*` - Authentication
+- `/chatbot/*` - Chatbot services
+- `/chatsession/*` - Chat session management
+- `/campus/*` - Campus information
+
+## Troubleshooting
+
+### Lỗi CORS
+
+Đảm bảo backend đã cấu hình CORS cho frontend domain.
+
+### Lỗi Authentication
+
+Kiểm tra JWT token trong localStorage và cấu hình backend.
+
+### Lỗi API Connection
+
+Kiểm tra `VITE_API_URL` và đảm bảo backend đang chạy.
+
+## Contributing
+
+1. Fork repository
+2. Tạo feature branch
+3. Commit changes
+4. Push to branch
+5. Tạo Pull Request
 
 ## License
 
-TailAdmin React.js Free Version is released under the MIT License.
-
-## Support
-
-If you find this project helpful, please consider giving it a star on GitHub. Your support helps us continue developing
-and maintaining this template.
+MIT License
