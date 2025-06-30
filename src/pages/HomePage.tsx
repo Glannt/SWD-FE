@@ -1,13 +1,9 @@
-import Header from "../components/layout/Header";
 import Footer from "../components/layout/Footer";
 import Banner from "../components/layout/Banner";
 
 const HomePage = () => {
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <Header />
-
       {/* Main Content */}
       <main className="max-w-[1920px] mx-auto px-0 bg-gray-50">
         {/* Banner tuyển sinh */}

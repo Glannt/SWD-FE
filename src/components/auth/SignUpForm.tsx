@@ -1,28 +1,115 @@
 import { useState } from "react";
+import { useAuth } from "../../hooks/useAuth";
 import Label from "../form/Label";
 import Input from "../form/input/InputField";
 import Checkbox from "../form/input/Checkbox";
 import Button from "../ui/button/Button";
+import { RegisterDto } from "../../types/api";
 
 interface SignUpFormProps {
   onSwitchMode?: () => void;
 }
 
 const SignUpForm = ({ onSwitchMode }: SignUpFormProps) => {
+  const { register } = useAuth();
+  const [formData, setFormData] = useState<RegisterDto>({
+    email: "",
+    password: "",
+    fullName: "",
+    confirmPassword: "",
+    isRegister: true,
+  });
   const [showPassword, setShowPassword] = useState(false);
   const [agreeTerms, setAgreeTerms] = useState(false);
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleInputChange = (field: keyof RegisterDto, value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+    // Clear error when user starts typing
+    if (error) setError("");
+  };
+
+  const validateForm = (): boolean => {
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setError("Email không hợp lệ.");
+      return false;
+    }
+
+    // Password validation
+    if (formData.password.length < 6) {
+      setError("Mật khẩu phải có ít nhất 6 ký tự.");
+      return false;
+    }
+
+    // Confirm password validation
+    if (formData.password !== formData.confirmPassword) {
+      setError("Mật khẩu xác nhận không khớp.");
+      return false;
+    }
+
+    // Full name validation
+    if (formData.fullName.trim().length < 2) {
+      setError("Họ và tên phải có ít nhất 2 ký tự.");
+      return false;
+    }
+
+    // Terms agreement validation
+    if (!agreeTerms) {
+      setError("Bạn phải đồng ý với điều khoản dịch vụ.");
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    if (password !== confirmPassword) {
-      setError("Mật khẩu xác nhận không khớp.");
+    setSuccess("");
+
+    if (!validateForm()) {
       return;
     }
-    // Xử lý đăng ký ở đây
+
+    setIsLoading(true);
+
+    try {
+      await register(formData);
+      setSuccess("Đăng ký thành công! Bạn đã được đăng nhập tự động.");
+
+      // Optional: Redirect or close modal after successful registration
+      setTimeout(() => {
+        // You can add navigation logic here if needed
+        window.location.reload(); // Simple reload for now
+      }, 2000);
+    } catch (err: unknown) {
+      console.error("Registration error:", err);
+
+      // Handle different types of errors
+      if (err && typeof err === "object" && "response" in err) {
+        const errorResponse = err as {
+          response?: { data?: { message?: string } };
+        };
+        if (errorResponse.response?.data?.message) {
+          setError(errorResponse.response.data.message);
+        } else {
+          setError("Có lỗi xảy ra khi đăng ký. Vui lòng thử lại.");
+        }
+      } else if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Có lỗi xảy ra khi đăng ký. Vui lòng thử lại.");
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -42,6 +129,7 @@ const SignUpForm = ({ onSwitchMode }: SignUpFormProps) => {
               onClick={() => {
                 // Xử lý đăng ký bằng Google
               }}
+              disabled={isLoading}
             >
               <svg
                 className="w-5 h-5 mr-2"
@@ -72,6 +160,21 @@ const SignUpForm = ({ onSwitchMode }: SignUpFormProps) => {
                 type="email"
                 placeholder="Nhập email của bạn"
                 required
+                value={formData.email}
+                onChange={(e) => handleInputChange("email", e.target.value)}
+                disabled={isLoading}
+              />
+            </div>
+            <div>
+              <Label htmlFor="fullname">Họ và tên</Label>
+              <Input
+                id="fullname"
+                type="text"
+                placeholder="Nhập họ và tên của bạn"
+                required
+                value={formData.fullName}
+                onChange={(e) => handleInputChange("fullName", e.target.value)}
+                disabled={isLoading}
               />
             </div>
 
@@ -83,13 +186,17 @@ const SignUpForm = ({ onSwitchMode }: SignUpFormProps) => {
                   type={showPassword ? "text" : "password"}
                   placeholder="Nhập mật khẩu của bạn"
                   required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  value={formData.password}
+                  onChange={(e) =>
+                    handleInputChange("password", e.target.value)
+                  }
+                  disabled={isLoading}
                 />
                 <button
                   type="button"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 disabled:opacity-50"
                   onClick={() => setShowPassword(!showPassword)}
+                  disabled={isLoading}
                 >
                   {showPassword ? (
                     <svg
@@ -137,18 +244,32 @@ const SignUpForm = ({ onSwitchMode }: SignUpFormProps) => {
                 type={showPassword ? "text" : "password"}
                 placeholder="Nhập lại mật khẩu"
                 required
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
+                value={formData.confirmPassword}
+                onChange={(e) =>
+                  handleInputChange("confirmPassword", e.target.value)
+                }
+                disabled={isLoading}
               />
             </div>
 
-            {error && <div className="text-red-500 text-sm">{error}</div>}
+            {error && (
+              <div className="text-red-500 text-sm bg-red-50 p-3 rounded-md border border-red-200">
+                {error}
+              </div>
+            )}
+
+            {success && (
+              <div className="text-green-600 text-sm bg-green-50 p-3 rounded-md border border-green-200">
+                {success}
+              </div>
+            )}
 
             <div className="flex items-center">
               <Checkbox
                 id="agree-terms"
                 checked={agreeTerms}
                 onChange={(checked) => setAgreeTerms(checked.target.checked)}
+                disabled={isLoading}
               />
               <Label
                 htmlFor="agree-terms"
@@ -165,8 +286,34 @@ const SignUpForm = ({ onSwitchMode }: SignUpFormProps) => {
               </Label>
             </div>
 
-            <Button type="submit" className="w-full">
-              Đăng ký
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? (
+                <div className="flex items-center justify-center">
+                  <svg
+                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  Đang đăng ký...
+                </div>
+              ) : (
+                "Đăng ký"
+              )}
             </Button>
 
             <div className="text-center text-sm">
@@ -174,7 +321,8 @@ const SignUpForm = ({ onSwitchMode }: SignUpFormProps) => {
               <button
                 type="button"
                 onClick={onSwitchMode}
-                className="font-medium text-brand-500 hover:text-brand-600"
+                className="font-medium text-brand-500 hover:text-brand-600 disabled:opacity-50"
+                disabled={isLoading}
               >
                 Đăng nhập
               </button>
