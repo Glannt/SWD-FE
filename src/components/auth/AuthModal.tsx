@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import SignInForm from "./SignInForm";
 import SignUpForm from "./SignUpForm";
 
@@ -10,6 +10,10 @@ interface AuthModalProps {
 
 const AuthModal = ({ isOpen, onClose, initialMode }: AuthModalProps) => {
   const [mode, setMode] = useState<string | undefined>(initialMode);
+
+  useEffect(() => {
+    setMode(initialMode);
+  }, [initialMode]);
 
   if (!isOpen) return null;
   return (
