@@ -5,6 +5,7 @@ import axios, {
   InternalAxiosRequestConfig,
 } from "axios";
 import { ApiError } from "../types/api";
+import { authService } from "../services/auth.service";
 
 // API Configuration
 const API_BASE_URL =
@@ -14,10 +15,30 @@ const API_BASE_URL =
 const api: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
   timeout: 30000,
+  withCredentials: true, // Enable sending cookies with requests
   headers: {
     "Content-Type": "application/json",
   },
 });
+
+// Flag to prevent multiple refresh requests
+let isRefreshing = false;
+let failedQueue: Array<{
+  resolve: (value?: unknown) => void;
+  reject: (reason?: unknown) => void;
+}> = [];
+
+const processQueue = (error: unknown, token: string | null = null) => {
+  failedQueue.forEach(({ resolve, reject }) => {
+    if (error) {
+      reject(error);
+    } else {
+      resolve(token);
+    }
+  });
+
+  failedQueue = [];
+};
 
 // Request interceptor
 api.interceptors.request.use(
@@ -39,18 +60,56 @@ api.interceptors.response.use(
   (response: AxiosResponse) => {
     return response;
   },
-  (error) => {
-    // Handle common errors
-    if (error.response) {
-      const { status, data } = error.response;
+  async (error) => {
+    const originalRequest = error.config;
 
-      // Handle authentication errors
-      if (status === 401) {
+    // Handle 401 errors (unauthorized)
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      if (isRefreshing) {
+        // If already refreshing, add to queue
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        })
+          .then((token) => {
+            originalRequest.headers.Authorization = `Bearer ${token}`;
+            return api(originalRequest);
+          })
+          .catch((err) => {
+            return Promise.reject(err);
+          });
+      }
+
+      originalRequest._retry = true;
+      isRefreshing = true;
+
+      try {
+        // Try to refresh token (refresh token is automatically sent via httpOnly cookie)
+        const response = await authService.refreshToken();
+
+        // Process queued requests
+        processQueue(null, response.accessToken);
+
+        // Update the original request with new token
+        originalRequest.headers.Authorization = `Bearer ${response.accessToken}`;
+
+        return api(originalRequest);
+      } catch (refreshError) {
+        // Refresh failed, clear storage and redirect to login
+        processQueue(refreshError, null);
+
         localStorage.removeItem("access_token");
         localStorage.removeItem("user");
+
         window.location.href = "/auth";
-        return Promise.reject(new Error("Unauthorized access"));
+        return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
       }
+    }
+
+    // Handle other errors
+    if (error.response) {
+      const { status, data } = error.response;
 
       // Handle server errors
       if (status >= 500) {
@@ -78,7 +137,17 @@ export const apiGet = <T>(
   url: string,
   config?: AxiosRequestConfig
 ): Promise<T> => {
-  return api.get(url, config).then((response) => response.data);
+  return api.get(url, config).then((response) => {
+    // Handle response structure: {statusCode, message, data}
+    if (
+      response.data &&
+      typeof response.data === "object" &&
+      "data" in response.data
+    ) {
+      return response.data.data;
+    }
+    return response.data;
+  });
 };
 
 export const apiPost = <T>(
@@ -86,7 +155,17 @@ export const apiPost = <T>(
   data?: unknown,
   config?: AxiosRequestConfig
 ): Promise<T> => {
-  return api.post(url, data, config).then((response) => response.data);
+  return api.post(url, data, config).then((response) => {
+    // Handle response structure: {statusCode, message, data}
+    if (
+      response.data &&
+      typeof response.data === "object" &&
+      "data" in response.data
+    ) {
+      return response.data.data;
+    }
+    return response.data;
+  });
 };
 
 export const apiPut = <T>(
@@ -94,14 +173,34 @@ export const apiPut = <T>(
   data?: unknown,
   config?: AxiosRequestConfig
 ): Promise<T> => {
-  return api.put(url, data, config).then((response) => response.data);
+  return api.put(url, data, config).then((response) => {
+    // Handle response structure: {statusCode, message, data}
+    if (
+      response.data &&
+      typeof response.data === "object" &&
+      "data" in response.data
+    ) {
+      return response.data.data;
+    }
+    return response.data;
+  });
 };
 
 export const apiDelete = <T>(
   url: string,
   config?: AxiosRequestConfig
 ): Promise<T> => {
-  return api.delete(url, config).then((response) => response.data);
+  return api.delete(url, config).then((response) => {
+    // Handle response structure: {statusCode, message, data}
+    if (
+      response.data &&
+      typeof response.data === "object" &&
+      "data" in response.data
+    ) {
+      return response.data.data;
+    }
+    return response.data;
+  });
 };
 
 // Error handling utility

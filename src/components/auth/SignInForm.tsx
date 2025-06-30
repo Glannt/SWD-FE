@@ -228,7 +228,7 @@ const SignInForm = ({ onSwitchMode }: SignInFormProps) => {
             </Label>
           </div>
           <Link
-            to="/forgot-password"
+            to="/auth/forgot-password"
             className="text-sm font-medium text-brand-500 hover:text-brand-600 disabled:opacity-50"
             onClick={(e) => isLoading && e.preventDefault()}
           >

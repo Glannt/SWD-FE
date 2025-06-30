@@ -48,6 +48,48 @@ export interface RegisterDto {
   isRegister: boolean;
 }
 
+// Reset Password Types
+export interface ForgotPasswordRequest {
+  email: string;
+}
+
+export interface ResetPasswordRequest {
+  token: string;
+  newPassword: string;
+  confirmPassword: string;
+}
+
+export interface VerifyResetTokenRequest {
+  token: string;
+}
+
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}
+
+export interface ForgotPasswordResponse {
+  success: boolean;
+  message: string;
+}
+
+export interface ResetPasswordResponse {
+  success: boolean;
+  message: string;
+}
+
+export interface VerifyResetTokenResponse {
+  success: boolean;
+  message: string;
+  email?: string;
+}
+
+export interface ChangePasswordResponse {
+  success: boolean;
+  message: string;
+}
+
 export interface AuthResponse {
   accessToken: string;
   user: User;
@@ -58,6 +100,18 @@ export interface User {
   fullName: string;
   email: string;
   role: UserRole;
+}
+
+// User Profile interface - dựa trên backend response
+export interface UserProfile {
+  user_id: string;
+  email: string;
+  fullName: string;
+  role: UserRole;
+  status: UserStatus;
+  isVerified: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 // Chat Types

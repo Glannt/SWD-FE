@@ -82,7 +82,7 @@ export const useUsers = (): UseUsersReturn => {
       try {
         const updatedUser = await userService.updateUser(userId, userData);
         setUsers((prev) =>
-          prev.map((user) => (user.id === userId ? updatedUser : user))
+          prev.map((user) => (user.user_id === userId ? updatedUser : user))
         );
         return updatedUser;
       } catch (err) {
@@ -100,7 +100,7 @@ export const useUsers = (): UseUsersReturn => {
     setError(null);
     try {
       await userService.deleteUser(userId);
-      setUsers((prev) => prev.filter((user) => user.id !== userId));
+      setUsers((prev) => prev.filter((user) => user.user_id !== userId));
     } catch (err) {
       handleError(err);
       throw err;
@@ -116,7 +116,7 @@ export const useUsers = (): UseUsersReturn => {
       try {
         const updatedUser = await userService.updateUserStatus(userId, status);
         setUsers((prev) =>
-          prev.map((user) => (user.id === userId ? updatedUser : user))
+          prev.map((user) => (user.user_id === userId ? updatedUser : user))
         );
         return updatedUser;
       } catch (err) {
@@ -135,7 +135,7 @@ export const useUsers = (): UseUsersReturn => {
     try {
       const updatedUser = await userService.updateUserRole(userId, role);
       setUsers((prev) =>
-        prev.map((user) => (user.id === userId ? updatedUser : user))
+        prev.map((user) => (user.user_id === userId ? updatedUser : user))
       );
       return updatedUser;
     } catch (err) {

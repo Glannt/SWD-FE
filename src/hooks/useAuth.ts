@@ -23,34 +23,34 @@ export const useAuth = (): UseAuthReturn => {
   const [isLoading, setIsLoading] = useState(true);
 
   const refreshUser = useCallback(async () => {
-    console.log("useAuth.refreshUser - Starting refresh");
+    // console.log("useAuth.refreshUser - Starting refresh");
     try {
       const currentUser = await authService.getCurrentUser();
-      console.log("useAuth.refreshUser - Got user:", currentUser);
+      // console.log("useAuth.refreshUser - Got user:", currentUser);
       setUser(currentUser);
     } catch (error) {
       console.error("useAuth.refreshUser - Failed to refresh user:", error);
       setUser(null);
     } finally {
       setIsLoading(false);
-      console.log("useAuth.refreshUser - Finished, isLoading:", false);
+      // console.log("useAuth.refreshUser - Finished, isLoading:", false);
     }
   }, []);
 
   const login = useCallback(async (credentials: LoginRequest) => {
-    console.log("useAuth.login - Starting login");
+    // console.log("useAuth.login - Starting login");
     setIsLoading(true);
     const response = await authService.login(credentials);
-    console.log(
-      "useAuth.login - Login successful, setting user:",
-      response.user
-    );
+    // console.log(
+    //   "useAuth.login - Login successful, setting user:",
+    //   response.user
+    // );
     setUser(response.user);
     setIsLoading(false);
   }, []);
 
   const register = useCallback(async (userData: RegisterDto) => {
-    console.log("useAuth.register - Starting registration");
+    // console.log("useAuth.register - Starting registration");
     setIsLoading(true);
     const response = await authService.register(userData);
     console.log(

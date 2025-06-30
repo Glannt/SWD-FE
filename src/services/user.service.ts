@@ -1,8 +1,14 @@
 import { apiGet, apiPost, apiPut, apiDelete } from "../utils/api";
-import { User, CreateUserDto, UserRole, UserStatus } from "../types/api";
+import {
+  User,
+  UserProfile,
+  CreateUserDto,
+  UserRole,
+  UserStatus,
+} from "../types/api";
 
 class UserService {
-  private readonly baseUrl = "/user";
+  private readonly baseUrl = "/users";
 
   // Get all users (admin only)
   async getUsers(): Promise<User[]> {
@@ -57,6 +63,10 @@ class UserService {
     return apiGet<User[]>(
       `${this.baseUrl}/search?q=${encodeURIComponent(query)}`
     );
+  }
+
+  async getUserProfile(userId: string): Promise<UserProfile> {
+    return apiGet<UserProfile>(`${this.baseUrl}/${userId}`);
   }
 }
 

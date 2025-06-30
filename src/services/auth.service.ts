@@ -5,6 +5,14 @@ import {
   CreateUserDto,
   AuthResponse,
   User,
+  ForgotPasswordRequest,
+  ResetPasswordRequest,
+  VerifyResetTokenRequest,
+  ChangePasswordRequest,
+  ForgotPasswordResponse,
+  ResetPasswordResponse,
+  VerifyResetTokenResponse,
+  ChangePasswordResponse,
 } from "../types/api";
 
 class AuthService {
@@ -16,27 +24,23 @@ class AuthService {
       credentials
     );
 
-    const response = await apiPost<{
-      data: AuthResponse;
-      message: string;
-      statusCode: number;
-    }>(`${this.baseUrl}/login`, credentials);
+    const response = await apiPost<AuthResponse>(
+      `${this.baseUrl}/login`,
+      credentials
+    );
 
     console.log("authService.login - API response:", response);
 
-    // Extract data from response.data
-    const authData = response.data;
-
-    // Store token and user data
-    localStorage.setItem("access_token", authData.accessToken);
-    localStorage.setItem("user", JSON.stringify(authData.user));
+    // Store access token and user data (refresh token is in httpOnly cookie)
+    localStorage.setItem("access_token", response.accessToken);
+    localStorage.setItem("user", JSON.stringify(response.user));
 
     console.log("authService.login - Stored in localStorage:", {
-      token: authData.accessToken,
-      user: authData.user,
+      token: response.accessToken,
+      user: response.user,
     });
 
-    return authData;
+    return response;
   }
 
   // Dành cho user tự đăng ký
@@ -46,27 +50,23 @@ class AuthService {
       userData
     );
 
-    const response = await apiPost<{
-      data: AuthResponse;
-      message: string;
-      statusCode: number;
-    }>(`${this.baseUrl}/register`, userData);
+    const response = await apiPost<AuthResponse>(
+      `${this.baseUrl}/register`,
+      userData
+    );
 
     console.log("authService.register - API response:", response);
 
-    // Extract data from response.data
-    const authData = response.data;
-
-    // Store token and user data
-    localStorage.setItem("access_token", authData.accessToken);
-    localStorage.setItem("user", JSON.stringify(authData.user));
+    // Store access token and user data (refresh token is in httpOnly cookie)
+    localStorage.setItem("access_token", response.accessToken);
+    localStorage.setItem("user", JSON.stringify(response.user));
 
     console.log("authService.register - Stored in localStorage:", {
-      token: authData.accessToken,
-      user: authData.user,
+      token: response.accessToken,
+      user: response.user,
     });
 
-    return authData;
+    return response;
   }
 
   // Dành cho admin tạo user mới
@@ -85,7 +85,7 @@ class AuthService {
         error
       );
     } finally {
-      // Clear local storage
+      // Clear local storage (refresh token is cleared by backend cookie)
       localStorage.removeItem("access_token");
       localStorage.removeItem("user");
     }
@@ -136,6 +136,60 @@ class AuthService {
   getStoredUser(): User | null {
     const user = localStorage.getItem("user");
     return user ? JSON.parse(user) : null;
+  }
+
+  async forgotPassword(
+    data: ForgotPasswordRequest
+  ): Promise<ForgotPasswordResponse> {
+    return apiPost<ForgotPasswordResponse>(
+      `${this.baseUrl}/forgot-password`,
+      data
+    );
+  }
+
+  async verifyResetToken(
+    data: VerifyResetTokenRequest
+  ): Promise<VerifyResetTokenResponse> {
+    return apiPost<VerifyResetTokenResponse>(
+      `${this.baseUrl}/verify-reset-token`,
+      data
+    );
+  }
+
+  async resetPassword(
+    data: ResetPasswordRequest
+  ): Promise<ResetPasswordResponse> {
+    return apiPost<ResetPasswordResponse>(
+      `${this.baseUrl}/reset-password`,
+      data
+    );
+  }
+
+  async changePassword(
+    data: ChangePasswordRequest
+  ): Promise<ChangePasswordResponse> {
+    return apiPost<ChangePasswordResponse>(
+      `${this.baseUrl}/change-password`,
+      data
+    );
+  }
+
+  async refreshToken(): Promise<AuthResponse> {
+    // Refresh token is automatically sent via httpOnly cookie
+    const response = await apiPost<AuthResponse>(
+      `${this.baseUrl}/refresh-token`
+    );
+
+    // Update stored access token and user data
+    localStorage.setItem("access_token", response.accessToken);
+    localStorage.setItem("user", JSON.stringify(response.user));
+
+    return response;
+  }
+
+  // This method is no longer needed since refresh token is in httpOnly cookie
+  getRefreshToken(): string | null {
+    return null; // Refresh token is in httpOnly cookie, not accessible via JavaScript
   }
 }
 
