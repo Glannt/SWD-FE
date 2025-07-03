@@ -13,6 +13,8 @@ import { ScrollToTop } from "../components/common/ScrollToTop";
 import { UserRole } from "../types/api";
 import AdminDashboard from "../pages/Dashboard/AdminDashboard";
 import HomePage from "../pages/HomePage";
+import UserManagement from "../pages/Dashboard/UserManagement";
+import ChatSessionManagement from "../pages/Dashboard/ChatSessionManagement";
 
 // Wrapper component để bao gồm ScrollToTop trong Router context
 const AppLayoutWithScroll = () => (
@@ -23,6 +25,18 @@ const AppLayoutWithScroll = () => (
 );
 
 export const router = createBrowserRouter([
+  {
+    path: "/admin",
+    element: <AdminDashboard />,
+  },
+  {
+    path: "/admin/users",
+    element: <UserManagement />,
+  },
+  {
+    path: "/admin/chat-sessions",
+    element: <ChatSessionManagement />,
+  },
   {
     path: "/",
     element: <AppLayoutWithScroll />,
@@ -44,18 +58,6 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={[UserRole.STUDENT, UserRole.ADMIN]}>
             <ProfilePage />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: "admin",
-        element: (
-          <ProtectedRoute allowedRoles={[UserRole.ADMIN]}>
-            {/* <div className="p-6">
-              <h1 className="text-2xl font-bold mb-4">Admin Dashboard</h1>
-              <p>Chỉ admin mới có thể truy cập trang này.</p>
-            </div> */}
-            <AdminDashboard />
           </ProtectedRoute>
         ),
       },

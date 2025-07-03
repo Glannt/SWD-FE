@@ -6,6 +6,7 @@ import {
   UserRole,
   UserStatus,
 } from "../types/api";
+import axios from "axios";
 
 class UserService {
   private readonly baseUrl = "/users";
@@ -25,15 +26,26 @@ class UserService {
     return apiPost<User>(`${this.baseUrl}`, userData);
   }
 
-  // Update user
+  // Update user (dùng PATCH thay vì PUT)
   async updateUser(
     userId: string,
     userData: Partial<CreateUserDto>
   ): Promise<User> {
-    return apiPut<User>(`${this.baseUrl}/${userId}`, userData);
+    return axios
+      .patch(
+        `${import.meta.env.VITE_API_URL || "http://localhost:3000/api/v1"}${
+          this.baseUrl
+        }/${userId}`,
+        userData,
+        {
+          withCredentials: true,
+          headers: { "Content-Type": "application/json" },
+        }
+      )
+      .then((res) => res.data.data || res.data);
   }
 
-  // Delete user (admin only)
+  // Delete user (giữ nguyên, đã đúng)
   async deleteUser(userId: string): Promise<void> {
     return apiDelete(`${this.baseUrl}/${userId}`);
   }

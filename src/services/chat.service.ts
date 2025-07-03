@@ -49,6 +49,12 @@ class ChatService {
       confidence,
     });
   }
+
+  async getAdminSessions(): Promise<import("../types/api").AdminChatSession[]> {
+    return apiGet<import("../types/api").AdminChatSession[]>(
+      "/admin/dashboard/sessions"
+    );
+  }
 }
 
 export const chatService = new ChatService();
