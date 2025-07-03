@@ -48,7 +48,10 @@ export const router = createBrowserRouter([
       {
         path: "chat",
         element: (
-          <ProtectedRoute allowedRoles={[UserRole.STUDENT, UserRole.ADMIN]}>
+          <ProtectedRoute
+            allowedRoles={[UserRole.STUDENT, UserRole.ADMIN]}
+            redirectTo="/auth/signin"
+          >
             <ChatBotPage />
           </ProtectedRoute>
         ),
@@ -56,7 +59,10 @@ export const router = createBrowserRouter([
       {
         path: "profile",
         element: (
-          <ProtectedRoute allowedRoles={[UserRole.STUDENT, UserRole.ADMIN]}>
+          <ProtectedRoute
+            allowedRoles={[UserRole.STUDENT, UserRole.ADMIN]}
+            redirectTo="/auth/signin"
+          >
             <ProfilePage />
           </ProtectedRoute>
         ),
@@ -64,7 +70,10 @@ export const router = createBrowserRouter([
       {
         path: "student",
         element: (
-          <ProtectedRoute allowedRoles={[UserRole.STUDENT]}>
+          <ProtectedRoute
+            allowedRoles={[UserRole.STUDENT]}
+            redirectTo="/auth/signin"
+          >
             <div className="p-6">
               <h1 className="text-2xl font-bold mb-4">Student Dashboard</h1>
               <p>Chỉ student mới có thể truy cập trang này.</p>
@@ -75,7 +84,10 @@ export const router = createBrowserRouter([
       {
         path: "admin",
         element: (
-          <ProtectedRoute allowedRoles={[UserRole.ADMIN]}>
+          <ProtectedRoute
+            allowedRoles={[UserRole.ADMIN]}
+            redirectTo="/auth/signin"
+          >
             <AdminDashboard />
           </ProtectedRoute>
         ),
@@ -88,7 +100,7 @@ export const router = createBrowserRouter([
     ],
   },
   {
-    path: "/auth",
+    path: "auth",
     element: <AppLayoutWithScroll />,
     children: [
       {
