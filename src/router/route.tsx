@@ -24,19 +24,19 @@ const AppLayoutWithScroll = () => (
   </>
 );
 
-export const router = createBrowserRouter([
+// Admin children routes tách riêng cho clean code
+const adminChildrenRoutes = [
   {
-    path: "/admin",
-    element: <AdminDashboard />,
-  },
-  {
-    path: "/admin/users",
+    path: "users",
     element: <UserManagement />,
   },
   {
-    path: "/admin/chat-sessions",
+    path: "chat-sessions",
     element: <ChatSessionManagement />,
   },
+];
+
+export const router = createBrowserRouter([
   {
     path: "/",
     element: <AppLayoutWithScroll />,
@@ -71,6 +71,15 @@ export const router = createBrowserRouter([
             </div>
           </ProtectedRoute>
         ),
+      },
+      {
+        path: "admin",
+        element: (
+          <ProtectedRoute allowedRoles={[UserRole.ADMIN]}>
+            <AdminDashboard />
+          </ProtectedRoute>
+        ),
+        children: adminChildrenRoutes,
       },
       {
         path: "unauthorized",
