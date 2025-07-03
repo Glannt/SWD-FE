@@ -9,7 +9,6 @@ import { useAuth } from "../../hooks/useAuth";
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import React from "react";
 
 export default function AdminDashboard() {
   const SIDEBAR_WIDTH = 270; // px
@@ -261,7 +260,7 @@ export default function AdminDashboard() {
                     </svg>
                   </div>
                   <div className="text-3xl font-bold text-blue-600">
-                    {summary?.totalVisits ?? "--"}
+                    {String(summary?.totalVisits ?? "--")}
                   </div>
                   <div className="mt-2 text-gray-500">Tổng lượt truy cập</div>
                 </div>
@@ -283,7 +282,7 @@ export default function AdminDashboard() {
                     </svg>
                   </div>
                   <div className="text-3xl font-bold text-indigo-600">
-                    {summary?.totalUsersChatted ?? "--"}
+                    {String(summary?.totalUsersChatted ?? "--")}
                   </div>
                   <div className="mt-2 text-gray-500">User đã chat</div>
                 </div>
@@ -305,7 +304,7 @@ export default function AdminDashboard() {
                     </svg>
                   </div>
                   <div className="text-3xl font-bold text-purple-600">
-                    {summary?.totalSessions ?? "--"}
+                    {String(summary?.totalSessions ?? "--")}
                   </div>
                   <div className="mt-2 text-gray-500">Session chat</div>
                 </div>
@@ -367,16 +366,21 @@ export default function AdminDashboard() {
                         .filter((s) => s && typeof s === "object")
                         .map((s, idx) => {
                           const session = s as Record<string, unknown>;
+                          if (!session) return null;
                           return (
                             <tr key={idx}>
                               <td className="py-2 px-4 border-b">
-                                {session.userName || session.user_id || "-"}
+                                {String(
+                                  session.userName || session.user_id || "-"
+                                )}
                               </td>
                               <td className="py-2 px-4 border-b">
-                                {session.sessionId || session.session_id || "-"}
+                                {String(
+                                  session.sessionId || session.session_id || "-"
+                                )}
                               </td>
                               <td className="py-2 px-4 border-b">
-                                {session.tag || "-"}
+                                {String(session.tag || "-")}
                               </td>
                             </tr>
                           );
@@ -409,16 +413,19 @@ export default function AdminDashboard() {
                         .filter((u) => u && typeof u === "object")
                         .map((u, idx) => {
                           const user = u as Record<string, unknown>;
+                          if (!user) return null;
                           return (
                             <tr key={idx}>
                               <td className="py-2 px-4 border-b">
-                                {user.fullName ||
-                                  user.name ||
-                                  user.user_id ||
-                                  "-"}
+                                {String(
+                                  user.fullName ||
+                                    user.name ||
+                                    user.user_id ||
+                                    "-"
+                                )}
                               </td>
                               <td className="py-2 px-4 border-b">
-                                {user.email || "-"}
+                                {String(user.email || "-")}
                               </td>
                             </tr>
                           );

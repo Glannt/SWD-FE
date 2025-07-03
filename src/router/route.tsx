@@ -14,6 +14,7 @@ import { UserRole } from "../types/api";
 import AdminDashboard from "../pages/Dashboard/AdminDashboard";
 import HomePage from "../pages/HomePage";
 import UserManagement from "../pages/Dashboard/UserManagement";
+import ChatSessionManagement from "../pages/Dashboard/ChatSessionManagement";
 
 // Wrapper component để bao gồm ScrollToTop trong Router context
 const AppLayoutWithScroll = () => (
@@ -31,6 +32,10 @@ export const router = createBrowserRouter([
   {
     path: "/admin/users",
     element: <UserManagement />,
+  },
+  {
+    path: "/admin/chat-sessions",
+    element: <ChatSessionManagement />,
   },
   {
     path: "/",

@@ -96,10 +96,13 @@ export interface AuthResponse {
 }
 
 export interface User {
+  _id: string;
   user_id: string;
   fullName: string;
   email: string;
   role: UserRole;
+  status?: string;
+  avatar?: string;
 }
 
 // User Profile interface - dựa trên backend response
@@ -193,4 +196,21 @@ export interface ApiError {
   status: number;
   message: string;
   details?: unknown;
+}
+
+export interface AdminChatSession {
+  user_id: string;
+  email: string;
+  fullName: string;
+  sessions: Array<{
+    sessionId: string;
+    createdAt: string;
+    tag: string | null;
+  }>;
+}
+
+export interface AdminChatSessionsResponse {
+  statusCode: number;
+  message: string;
+  data: AdminChatSession[];
 }

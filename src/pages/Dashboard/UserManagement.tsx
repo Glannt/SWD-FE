@@ -1,15 +1,13 @@
 import { useEffect, useState, useMemo } from "react";
 import { userService } from "../../services/user.service";
-import { User } from "../../types/api";
+import { User, UserRole, UserStatus } from "../../types/api";
 import { FiSearch } from "react-icons/fi";
 import { FaUserGraduate, FaUserTie, FaUserFriends } from "react-icons/fa";
 import { MdSupervisorAccount } from "react-icons/md";
 import { SidebarProvider } from "../../context/SidebarContext";
 import AppSidebar from "../../layout/AppSidebar";
-import { IoMdNotificationsOutline } from "react-icons/io";
-import { useAuth } from "../../hooks/useAuth";
 import { useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { ChangeEvent, FormEvent } from "react";
 
 const ROLE_OPTIONS = [
   {
@@ -28,7 +26,7 @@ const STATUS_OPTIONS = [
   { value: "inactive", label: "Đã rời hệ thống" },
 ];
 
-function getRoleLabel(role) {
+function getRoleLabel(role: string) {
   switch (role) {
     case "student":
       return (
@@ -60,7 +58,7 @@ function getRoleLabel(role) {
       );
   }
 }
-function getStatusLabel(status) {
+function getStatusLabel(status: string) {
   if (status === "active")
     return (
       <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">
@@ -80,16 +78,6 @@ function getStatusLabel(status) {
   );
 }
 
-const defaultForm = {
-  fullName: "",
-  email: "",
-  role: "student",
-  status: "active",
-  password: "",
-};
-
-const TOPBAR_HEIGHT = 72;
-
 export default function UserManagement() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
@@ -98,15 +86,24 @@ export default function UserManagement() {
   const [role, setRole] = useState("all");
   const [status, setStatus] = useState("all");
   const [page, setPage] = useState(1);
+  const PAGE_SIZE = 5;
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const [showModal, setShowModal] = useState(false);
   const [modalMode, setModalMode] = useState<"create" | "edit">("create");
-  const [form, setForm] = useState<any>(defaultForm);
+  const [form, setForm] = useState<{
+    fullName: string;
+    email: string;
+    role: string;
+    status: string;
+    password?: string;
+  }>({
+    fullName: "",
+    email: "",
+    role: "student",
+    status: "active",
+    password: "",
+  });
   const [editId, setEditId] = useState<string | null>(null);
-  const PAGE_SIZE = 5;
-  const { user, logout } = useAuth();
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const navigate = useNavigate();
 
   useEffect(() => {
     fetchUsers();
@@ -118,34 +115,12 @@ export default function UserManagement() {
         dropdownRef.current &&
         !dropdownRef.current.contains(event.target as Node)
       ) {
-        setIsDropdownOpen(false);
+        // setIsDropdownOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
-  const getInitials = (fullName: string) => {
-    return fullName
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
-  };
-
-  async function fetchUsers() {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await userService.getUsers();
-      setUsers(data);
-    } catch (err) {
-      setError("Không thể tải danh sách user");
-    } finally {
-      setLoading(false);
-    }
-  }
 
   // Lọc và tìm kiếm
   const filteredUsers = useMemo(() => {
@@ -165,7 +140,6 @@ export default function UserManagement() {
   }, [users, role, status, search]);
 
   // Phân trang
-  const totalPages = Math.ceil(filteredUsers.length / PAGE_SIZE) || 1;
   const pagedUsers = filteredUsers.slice(
     (page - 1) * PAGE_SIZE,
     page * PAGE_SIZE
@@ -173,49 +147,78 @@ export default function UserManagement() {
 
   // Modal logic
   const openCreate = () => {
-    setForm(defaultForm);
+    setForm({
+      fullName: "",
+      email: "",
+      role: "student",
+      status: "active",
+      password: "",
+    });
     setModalMode("create");
     setEditId(null);
     setShowModal(true);
   };
-  const openEdit = (user: any) => {
-    setForm({ ...user });
+  const openEdit = (user: User) => {
+    setForm({
+      fullName: user.fullName,
+      email: user.email,
+      role: user.role,
+      status: user.status || "active",
+    });
     setModalMode("edit");
     setEditId(user._id);
     setShowModal(true);
   };
   const closeModal = () => setShowModal(false);
 
-  // Tạo mới hoặc cập nhật user
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
       if (modalMode === "create") {
-        await userService.createUser(form);
+        await userService.createUser({
+          ...form,
+          role: form.role as UserRole,
+          status: form.status as UserStatus,
+          password: form.password || "",
+        });
       } else if (modalMode === "edit" && editId) {
         const { fullName, role, status } = form;
-        await userService.updateUser(editId, { fullName, role, status });
+        await userService.updateUser(editId, {
+          fullName,
+          role: role as UserRole,
+          status: status as UserStatus,
+        });
       }
       closeModal();
       fetchUsers();
-    } catch (err: any) {
-      alert(
-        "Có lỗi xảy ra khi lưu user!" + (err?.response?.data?.message || "")
-      );
+    } catch {
+      alert("Có lỗi xảy ra khi lưu user!");
     }
   };
 
   // Xóa user
-  const handleDelete = async (user: any) => {
+  const handleDelete = async (user: User) => {
     if (!window.confirm(`Bạn có chắc muốn xóa user ${user.fullName}?`)) return;
     try {
       await userService.deleteUser(user._id);
       fetchUsers();
-    } catch (err: any) {
-      console.error("Delete user error:", err?.response?.data || err);
-      alert("Xóa user thất bại! " + (err?.response?.data?.message || ""));
+    } catch {
+      alert("Xóa user thất bại!");
     }
   };
+
+  async function fetchUsers() {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await userService.getUsers();
+      setUsers(data);
+    } catch {
+      setError("Không thể tải danh sách user");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
     <SidebarProvider>
@@ -314,35 +317,35 @@ export default function UserManagement() {
                           <img
                             src={
                               user.avatar ||
-                              `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                                user.fullName
-                              )}`
+                              `https://ui-avatars.com/api/?name=${user.fullName}&background=random&size=24`
                             }
                             alt={user.fullName}
-                            className="w-8 h-8 rounded-full object-cover"
+                            className="w-8 h-8 rounded-full"
                           />
-                          <span>{user.fullName}</span>
+                          {user.fullName}
                         </td>
                         <td className="py-2 px-4 border-b">{user.email}</td>
                         <td className="py-2 px-4 border-b">
                           {getRoleLabel(user.role)}
                         </td>
                         <td className="py-2 px-4 border-b">
-                          {getStatusLabel(user.status)}
+                          {getStatusLabel(user.status || "active")}
                         </td>
                         <td className="py-2 px-4 border-b">
-                          <button
-                            className="text-indigo-600 mr-2"
-                            onClick={() => openEdit(user)}
-                          >
-                            Sửa
-                          </button>
-                          <button
-                            className="text-red-600"
-                            onClick={() => handleDelete(user)}
-                          >
-                            Xóa
-                          </button>
+                          <div className="flex items-center gap-2">
+                            <button
+                              className="text-indigo-600 hover:text-indigo-800"
+                              onClick={() => openEdit(user)}
+                            >
+                              Sửa
+                            </button>
+                            <button
+                              className="text-red-600 hover:text-red-800"
+                              onClick={() => handleDelete(user)}
+                            >
+                              Xóa
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -350,131 +353,121 @@ export default function UserManagement() {
                 </table>
               </div>
             )}
-            {/* Modal tạo/sửa user */}
-            {showModal && (
-              <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
-                <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-md relative">
-                  <button
-                    className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
-                    onClick={closeModal}
-                  >
-                    &times;
-                  </button>
-                  <h2 className="text-xl font-bold mb-4">
-                    {modalMode === "create" ? "Tạo mới user" : "Cập nhật user"}
-                  </h2>
-                  <form onSubmit={handleSubmit} className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-1">
-                        Họ tên
-                      </label>
-                      <input
-                        className="w-full border rounded-lg px-3 py-2"
-                        value={form.fullName}
-                        onChange={(e) =>
-                          setForm((f: any) => ({
-                            ...f,
-                            fullName: e.target.value,
-                          }))
-                        }
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">
-                        Email
-                      </label>
-                      <input
-                        className="w-full border rounded-lg px-3 py-2"
-                        type="email"
-                        value={form.email}
-                        onChange={(e) =>
-                          setForm((f: any) => ({ ...f, email: e.target.value }))
-                        }
-                        required
-                        disabled={modalMode === "edit"}
-                      />
-                    </div>
-                    {modalMode === "create" && (
-                      <div>
-                        <label className="block text-sm font-medium mb-1">
-                          Mật khẩu
-                        </label>
-                        <input
-                          className="w-full border rounded-lg px-3 py-2"
-                          type="password"
-                          value={form.password}
-                          onChange={(e) =>
-                            setForm((f: any) => ({
-                              ...f,
-                              password: e.target.value,
-                            }))
-                          }
-                          required
-                        />
-                      </div>
-                    )}
-                    <div>
-                      <label className="block text-sm font-medium mb-1">
-                        Vai trò
-                      </label>
-                      <select
-                        className="w-full border rounded-lg px-3 py-2"
-                        value={form.role}
-                        onChange={(e) =>
-                          setForm((f: any) => ({ ...f, role: e.target.value }))
-                        }
-                        required
-                      >
-                        {ROLE_OPTIONS.map((opt) => (
-                          <option key={opt.value} value={opt.value}>
-                            {opt.label}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">
-                        Trạng thái
-                      </label>
-                      <select
-                        className="w-full border rounded-lg px-3 py-2"
-                        value={form.status}
-                        onChange={(e) =>
-                          setForm((f: any) => ({
-                            ...f,
-                            status: e.target.value,
-                          }))
-                        }
-                        required
-                      >
-                        {STATUS_OPTIONS.map((opt) => (
-                          <option key={opt.value} value={opt.value}>
-                            {opt.label}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <div className="flex justify-end gap-2">
-                      <button
-                        type="button"
-                        className="px-4 py-2 rounded bg-gray-200"
-                        onClick={closeModal}
-                      >
-                        Hủy
-                      </button>
-                      <button
-                        type="submit"
-                        className="px-4 py-2 rounded bg-indigo-600 text-white font-semibold hover:bg-indigo-700"
-                      >
-                        Lưu
-                      </button>
-                    </div>
-                  </form>
-                </div>
-              </div>
-            )}
           </div>
+          {showModal && (
+            <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+              <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-md relative">
+                <button
+                  className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
+                  onClick={closeModal}
+                >
+                  &times;
+                </button>
+                <h2 className="text-xl font-bold mb-4">
+                  {modalMode === "create" ? "Tạo mới user" : "Cập nhật user"}
+                </h2>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Họ tên
+                    </label>
+                    <input
+                      className="w-full border rounded-lg px-3 py-2"
+                      value={form.fullName}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                        setForm((f) => ({ ...f, fullName: e.target.value }))
+                      }
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Email
+                    </label>
+                    <input
+                      className="w-full border rounded-lg px-3 py-2"
+                      type="email"
+                      value={form.email}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                        setForm((f) => ({ ...f, email: e.target.value }))
+                      }
+                      required
+                      disabled={modalMode === "edit"}
+                    />
+                  </div>
+                  {modalMode === "create" && (
+                    <div>
+                      <label className="block text-sm font-medium mb-1">
+                        Mật khẩu
+                      </label>
+                      <input
+                        className="w-full border rounded-lg px-3 py-2"
+                        type="password"
+                        value={form.password}
+                        onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                          setForm((f) => ({ ...f, password: e.target.value }))
+                        }
+                        required
+                      />
+                    </div>
+                  )}
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Vai trò
+                    </label>
+                    <select
+                      className="w-full border rounded-lg px-3 py-2"
+                      value={form.role}
+                      onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+                        setForm((f) => ({ ...f, role: e.target.value }))
+                      }
+                      required
+                    >
+                      {ROLE_OPTIONS.map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Trạng thái
+                    </label>
+                    <select
+                      className="w-full border rounded-lg px-3 py-2"
+                      value={form.status}
+                      onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+                        setForm((f) => ({ ...f, status: e.target.value }))
+                      }
+                      required
+                    >
+                      {STATUS_OPTIONS.map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="flex justify-end gap-2">
+                    <button
+                      type="button"
+                      className="px-4 py-2 rounded bg-gray-200"
+                      onClick={closeModal}
+                    >
+                      Hủy
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-4 py-2 rounded bg-indigo-600 text-white font-semibold hover:bg-indigo-700"
+                    >
+                      Lưu
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </SidebarProvider>
