@@ -4,8 +4,6 @@ import { User, UserRole, UserStatus } from "../../types/api";
 import { FiSearch } from "react-icons/fi";
 import { FaUserGraduate, FaUserTie, FaUserFriends } from "react-icons/fa";
 import { MdSupervisorAccount } from "react-icons/md";
-import { SidebarProvider } from "../../context/SidebarContext";
-import AppSidebar from "../../layout/AppSidebar";
 import { useRef } from "react";
 import { ChangeEvent, FormEvent } from "react";
 
@@ -221,255 +219,230 @@ export default function UserManagement() {
   }
 
   return (
-    <SidebarProvider>
-      <div className="min-h-screen bg-gray-50 flex">
-        {/* Sidebar cố định bên trái */}
-        <div
-          className="h-screen fixed left-0 top-0 z-30"
-          style={{ width: 270 }}
-        >
-          <AppSidebar />
+    <div className="p-8 bg-gray-50 min-h-screen">
+      <h1 className="text-2xl font-bold mb-6">Quản lý người dùng</h1>
+      <div className="flex flex-col md:flex-row md:items-center gap-4 mb-6">
+        <div className="relative w-full md:w-1/3">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+            <FiSearch />
+          </span>
+          <input
+            type="text"
+            placeholder="Tìm kiếm theo tên hoặc email..."
+            className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-200"
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
+          />
         </div>
-        {/* Nội dung bên phải sidebar */}
-        <div
-          className="flex-1 flex flex-col ml-0 md:ml-[270px] min-h-screen"
-          style={{ marginLeft: 270 }}
+        <select
+          className="border rounded-lg px-3 py-2 text-sm bg-white"
+          value={role}
+          onChange={(e) => {
+            setRole(e.target.value);
+            setPage(1);
+          }}
         >
-          <div className="p-8 bg-gray-50 min-h-screen">
-            <h1 className="text-2xl font-bold mb-6">Quản lý người dùng</h1>
-            <div className="flex flex-col md:flex-row md:items-center gap-4 mb-6">
-              <div className="relative w-full md:w-1/3">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-                  <FiSearch />
-                </span>
+          <option value="all">Tất cả vai trò</option>
+          {ROLE_OPTIONS.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
+        <select
+          className="border rounded-lg px-3 py-2 text-sm bg-white"
+          value={status}
+          onChange={(e) => {
+            setStatus(e.target.value);
+            setPage(1);
+          }}
+        >
+          <option value="all">Tất cả trạng thái</option>
+          {STATUS_OPTIONS.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
+        <button
+          className="ml-auto bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition"
+          onClick={openCreate}
+        >
+          + Tạo mới user
+        </button>
+      </div>
+      {loading ? (
+        <div>Đang tải...</div>
+      ) : error ? (
+        <div className="text-red-500">{error}</div>
+      ) : (
+        <div className="overflow-x-auto rounded-xl shadow bg-white">
+          <table className="min-w-full">
+            <thead>
+              <tr className="bg-gray-50">
+                <th className="py-2 px-4 border-b text-left">Họ tên</th>
+                <th className="py-2 px-4 border-b text-left">Email</th>
+                <th className="py-2 px-4 border-b text-left">Vai trò</th>
+                <th className="py-2 px-4 border-b text-left">Trạng thái</th>
+                <th className="py-2 px-4 border-b text-left">Hành động</th>
+              </tr>
+            </thead>
+            <tbody>
+              {pagedUsers.map((user) => (
+                <tr key={user.user_id} className="hover:bg-gray-50">
+                  <td className="py-2 px-4 border-b flex items-center gap-3">
+                    <img
+                      src={
+                        user.avatar ||
+                        `https://ui-avatars.com/api/?name=${user.fullName}&background=random&size=24`
+                      }
+                      alt={user.fullName}
+                      className="w-8 h-8 rounded-full"
+                    />
+                    {user.fullName}
+                  </td>
+                  <td className="py-2 px-4 border-b">{user.email}</td>
+                  <td className="py-2 px-4 border-b">
+                    {getRoleLabel(user.role)}
+                  </td>
+                  <td className="py-2 px-4 border-b">
+                    {getStatusLabel(user.status || "active")}
+                  </td>
+                  <td className="py-2 px-4 border-b">
+                    <div className="flex items-center gap-2">
+                      <button
+                        className="text-indigo-600 hover:text-indigo-800"
+                        onClick={() => openEdit(user)}
+                      >
+                        Sửa
+                      </button>
+                      <button
+                        className="text-red-600 hover:text-red-800"
+                        onClick={() => handleDelete(user)}
+                      >
+                        Xóa
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-md relative">
+            <button
+              className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
+              onClick={closeModal}
+            >
+              &times;
+            </button>
+            <h2 className="text-xl font-bold mb-4">
+              {modalMode === "create" ? "Tạo mới user" : "Cập nhật user"}
+            </h2>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Họ tên</label>
                 <input
-                  type="text"
-                  placeholder="Tìm kiếm theo tên hoặc email..."
-                  className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-200"
-                  value={search}
-                  onChange={(e) => {
-                    setSearch(e.target.value);
-                    setPage(1);
-                  }}
+                  className="w-full border rounded-lg px-3 py-2"
+                  value={form.fullName}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                    setForm((f) => ({ ...f, fullName: e.target.value }))
+                  }
+                  required
                 />
               </div>
-              <select
-                className="border rounded-lg px-3 py-2 text-sm bg-white"
-                value={role}
-                onChange={(e) => {
-                  setRole(e.target.value);
-                  setPage(1);
-                }}
-              >
-                <option value="all">Tất cả vai trò</option>
-                {ROLE_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
-              <select
-                className="border rounded-lg px-3 py-2 text-sm bg-white"
-                value={status}
-                onChange={(e) => {
-                  setStatus(e.target.value);
-                  setPage(1);
-                }}
-              >
-                <option value="all">Tất cả trạng thái</option>
-                {STATUS_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
-              <button
-                className="ml-auto bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition"
-                onClick={openCreate}
-              >
-                + Tạo mới user
-              </button>
-            </div>
-            {loading ? (
-              <div>Đang tải...</div>
-            ) : error ? (
-              <div className="text-red-500">{error}</div>
-            ) : (
-              <div className="overflow-x-auto rounded-xl shadow bg-white">
-                <table className="min-w-full">
-                  <thead>
-                    <tr className="bg-gray-50">
-                      <th className="py-2 px-4 border-b text-left">Họ tên</th>
-                      <th className="py-2 px-4 border-b text-left">Email</th>
-                      <th className="py-2 px-4 border-b text-left">Vai trò</th>
-                      <th className="py-2 px-4 border-b text-left">
-                        Trạng thái
-                      </th>
-                      <th className="py-2 px-4 border-b text-left">
-                        Hành động
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {pagedUsers.map((user) => (
-                      <tr key={user.user_id} className="hover:bg-gray-50">
-                        <td className="py-2 px-4 border-b flex items-center gap-3">
-                          <img
-                            src={
-                              user.avatar ||
-                              `https://ui-avatars.com/api/?name=${user.fullName}&background=random&size=24`
-                            }
-                            alt={user.fullName}
-                            className="w-8 h-8 rounded-full"
-                          />
-                          {user.fullName}
-                        </td>
-                        <td className="py-2 px-4 border-b">{user.email}</td>
-                        <td className="py-2 px-4 border-b">
-                          {getRoleLabel(user.role)}
-                        </td>
-                        <td className="py-2 px-4 border-b">
-                          {getStatusLabel(user.status || "active")}
-                        </td>
-                        <td className="py-2 px-4 border-b">
-                          <div className="flex items-center gap-2">
-                            <button
-                              className="text-indigo-600 hover:text-indigo-800"
-                              onClick={() => openEdit(user)}
-                            >
-                              Sửa
-                            </button>
-                            <button
-                              className="text-red-600 hover:text-red-800"
-                              onClick={() => handleDelete(user)}
-                            >
-                              Xóa
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div>
+                <label className="block text-sm font-medium mb-1">Email</label>
+                <input
+                  className="w-full border rounded-lg px-3 py-2"
+                  type="email"
+                  value={form.email}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                    setForm((f) => ({ ...f, email: e.target.value }))
+                  }
+                  required
+                  disabled={modalMode === "edit"}
+                />
               </div>
-            )}
-          </div>
-          {showModal && (
-            <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
-              <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-md relative">
+              {modalMode === "create" && (
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Mật khẩu
+                  </label>
+                  <input
+                    className="w-full border rounded-lg px-3 py-2"
+                    type="password"
+                    value={form.password}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                      setForm((f) => ({ ...f, password: e.target.value }))
+                    }
+                    required
+                  />
+                </div>
+              )}
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Vai trò
+                </label>
+                <select
+                  className="w-full border rounded-lg px-3 py-2"
+                  value={form.role}
+                  onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+                    setForm((f) => ({ ...f, role: e.target.value }))
+                  }
+                  required
+                >
+                  {ROLE_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Trạng thái
+                </label>
+                <select
+                  className="w-full border rounded-lg px-3 py-2"
+                  value={form.status}
+                  onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+                    setForm((f) => ({ ...f, status: e.target.value }))
+                  }
+                  required
+                >
+                  {STATUS_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex justify-end gap-2">
                 <button
-                  className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
+                  type="button"
+                  className="px-4 py-2 rounded bg-gray-200"
                   onClick={closeModal}
                 >
-                  &times;
+                  Hủy
                 </button>
-                <h2 className="text-xl font-bold mb-4">
-                  {modalMode === "create" ? "Tạo mới user" : "Cập nhật user"}
-                </h2>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-1">
-                      Họ tên
-                    </label>
-                    <input
-                      className="w-full border rounded-lg px-3 py-2"
-                      value={form.fullName}
-                      onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                        setForm((f) => ({ ...f, fullName: e.target.value }))
-                      }
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">
-                      Email
-                    </label>
-                    <input
-                      className="w-full border rounded-lg px-3 py-2"
-                      type="email"
-                      value={form.email}
-                      onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                        setForm((f) => ({ ...f, email: e.target.value }))
-                      }
-                      required
-                      disabled={modalMode === "edit"}
-                    />
-                  </div>
-                  {modalMode === "create" && (
-                    <div>
-                      <label className="block text-sm font-medium mb-1">
-                        Mật khẩu
-                      </label>
-                      <input
-                        className="w-full border rounded-lg px-3 py-2"
-                        type="password"
-                        value={form.password}
-                        onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                          setForm((f) => ({ ...f, password: e.target.value }))
-                        }
-                        required
-                      />
-                    </div>
-                  )}
-                  <div>
-                    <label className="block text-sm font-medium mb-1">
-                      Vai trò
-                    </label>
-                    <select
-                      className="w-full border rounded-lg px-3 py-2"
-                      value={form.role}
-                      onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-                        setForm((f) => ({ ...f, role: e.target.value }))
-                      }
-                      required
-                    >
-                      {ROLE_OPTIONS.map((opt) => (
-                        <option key={opt.value} value={opt.value}>
-                          {opt.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">
-                      Trạng thái
-                    </label>
-                    <select
-                      className="w-full border rounded-lg px-3 py-2"
-                      value={form.status}
-                      onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-                        setForm((f) => ({ ...f, status: e.target.value }))
-                      }
-                      required
-                    >
-                      {STATUS_OPTIONS.map((opt) => (
-                        <option key={opt.value} value={opt.value}>
-                          {opt.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="flex justify-end gap-2">
-                    <button
-                      type="button"
-                      className="px-4 py-2 rounded bg-gray-200"
-                      onClick={closeModal}
-                    >
-                      Hủy
-                    </button>
-                    <button
-                      type="submit"
-                      className="px-4 py-2 rounded bg-indigo-600 text-white font-semibold hover:bg-indigo-700"
-                    >
-                      Lưu
-                    </button>
-                  </div>
-                </form>
+                <button
+                  type="submit"
+                  className="px-4 py-2 rounded bg-indigo-600 text-white font-semibold hover:bg-indigo-700"
+                >
+                  Lưu
+                </button>
               </div>
-            </div>
-          )}
+            </form>
+          </div>
         </div>
-      </div>
-    </SidebarProvider>
+      )}
+    </div>
   );
 }

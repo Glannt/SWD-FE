@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { Link, useLocation } from "react-router";
+import { useEffect, useRef, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
 // Assume these icons are imported from an icon library
 import { GridIcon, TableIcon, UserCircleIcon, ChevronDownIcon } from "../icons";
@@ -35,6 +35,7 @@ const othersItems: NavItem[] = [];
 const AppSidebar: React.FC = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const location = useLocation();
+  const navigate = useNavigate();
 
   const [openSubmenu, setOpenSubmenu] = useState<{
     type: "main" | "others";
@@ -45,11 +46,7 @@ const AppSidebar: React.FC = () => {
   );
   const subMenuRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
-  // const isActive = (path: string) => location.pathname === path;
-  const isActive = useCallback(
-    (path: string) => location.pathname === path,
-    [location.pathname]
-  );
+  const isActive = (path: string) => location.pathname === path;
 
   useEffect(() => {
     let submenuMatched = false;
@@ -142,11 +139,12 @@ const AppSidebar: React.FC = () => {
             </button>
           ) : (
             nav.path && (
-              <Link
-                to={nav.path}
+              <div
+                onClick={() => navigate(nav.path!)}
                 className={`menu-item group ${
                   isActive(nav.path) ? "menu-item-active" : "menu-item-inactive"
-                }`}
+                } cursor-pointer`}
+                style={{ userSelect: "none" }}
               >
                 <span
                   className={`menu-item-icon-size ${
@@ -160,7 +158,7 @@ const AppSidebar: React.FC = () => {
                 {(isExpanded || isHovered || isMobileOpen) && (
                   <span className="menu-item-text">{nav.name}</span>
                 )}
-              </Link>
+              </div>
             )
           )}
           {nav.subItems && (isExpanded || isHovered || isMobileOpen) && (
@@ -177,15 +175,17 @@ const AppSidebar: React.FC = () => {
               }}
             >
               <ul className="mt-2 space-y-1 ml-9">
-                {nav.subItems.map((subItem) => (
-                  <li key={subItem.name}>
-                    <Link
-                      to={subItem.path}
+                {nav.subItems &&
+                  nav.subItems.map((subItem) => (
+                    <li
+                      key={subItem.name}
                       className={`menu-dropdown-item ${
                         isActive(subItem.path)
                           ? "menu-dropdown-item-active"
                           : "menu-dropdown-item-inactive"
-                      }`}
+                      } cursor-pointer`}
+                      style={{ userSelect: "none" }}
+                      onClick={() => navigate(subItem.path)}
                     >
                       {subItem.name}
                       <span className="flex items-center gap-1 ml-auto">
@@ -212,9 +212,8 @@ const AppSidebar: React.FC = () => {
                           </span>
                         )}
                       </span>
-                    </Link>
-                  </li>
-                ))}
+                    </li>
+                  ))}
               </ul>
             </div>
           )}

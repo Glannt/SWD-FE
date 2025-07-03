@@ -15,6 +15,7 @@ import AdminDashboard from "../pages/Dashboard/AdminDashboard";
 import HomePage from "../pages/HomePage";
 import UserManagement from "../pages/Dashboard/UserManagement";
 import ChatSessionManagement from "../pages/Dashboard/ChatSessionManagement";
+import AdminPage from "../pages/Dashboard/AdminPage";
 
 // Wrapper component để bao gồm ScrollToTop trong Router context
 const AppLayoutWithScroll = () => (
@@ -25,16 +26,16 @@ const AppLayoutWithScroll = () => (
 );
 
 // Admin children routes tách riêng cho clean code
-const adminChildrenRoutes = [
-  {
-    path: "users",
-    element: <UserManagement />,
-  },
-  {
-    path: "chat-sessions",
-    element: <ChatSessionManagement />,
-  },
-];
+// const adminChildrenRoutes = [
+//   {
+//     path: "users",
+//     element: <UserManagement />,
+//   },
+//   {
+//     path: "chat-sessions",
+//     element: <ChatSessionManagement />,
+//   },
+// ];
 
 export const router = createBrowserRouter([
   {
@@ -88,10 +89,14 @@ export const router = createBrowserRouter([
             allowedRoles={[UserRole.ADMIN]}
             redirectTo="/auth/signin"
           >
-            <AdminDashboard />
+            <AdminPage />
           </ProtectedRoute>
         ),
-        children: adminChildrenRoutes,
+        children: [
+          { index: true, element: <AdminDashboard /> },
+          { path: "users", element: <UserManagement /> },
+          { path: "chat-sessions", element: <ChatSessionManagement /> },
+        ],
       },
       {
         path: "unauthorized",
