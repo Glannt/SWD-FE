@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import Button from "../ui/button/Button";
 import Input from "../form/input/InputField";
@@ -12,6 +12,7 @@ interface SignInFormProps {
 }
 
 const SignInForm = ({ onSwitchMode }: SignInFormProps) => {
+  const navigate = useNavigate();
   const { login } = useAuth();
   const [formData, setFormData] = useState<LoginRequest>({
     email: "",
@@ -64,15 +65,14 @@ const SignInForm = ({ onSwitchMode }: SignInFormProps) => {
       await login(formData);
       setSuccess("Đăng nhập thành công!");
 
-      // Optional: Redirect or close modal after successful login
+      // Chỉ reload khi đăng nhập thành công
       setTimeout(() => {
-        // You can add navigation logic here if needed
-        window.location.reload(); // Simple reload for now
+        // window.location.reload();
+        navigate("/");
       }, 1500);
     } catch (err: unknown) {
       console.error("Login error:", err);
-
-      // Handle different types of errors
+      // Khi lỗi chỉ setError, không reload, không đóng modal
       if (err && typeof err === "object" && "response" in err) {
         const errorResponse = err as {
           response?: { data?: { message?: string } };
@@ -87,6 +87,7 @@ const SignInForm = ({ onSwitchMode }: SignInFormProps) => {
       } else {
         setError("Có lỗi xảy ra khi đăng nhập. Vui lòng thử lại.");
       }
+      // Không reload, không setSuccess khi lỗi
     } finally {
       setIsLoading(false);
     }

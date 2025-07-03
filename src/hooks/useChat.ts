@@ -6,6 +6,7 @@ import type {
   ChatSession,
   AskQuestionRequest,
 } from "../types/api";
+import { useLocation } from "react-router-dom";
 
 interface UseChatReturn {
   messages: ChatMessage[];
@@ -30,6 +31,7 @@ export const useChat = (): UseChatReturn => {
   );
   const [isLoading, setIsLoading] = useState(false);
   const [isSending, setIsSending] = useState(false);
+  const location = useLocation();
 
   // Load user sessions on mount
   useEffect(() => {
@@ -38,8 +40,19 @@ export const useChat = (): UseChatReturn => {
     }
   }, [user?.user_id]);
 
+  useEffect(() => {
+    if (
+      (location.pathname === "/chat" ||
+        location.pathname.startsWith("/chat")) &&
+      user?.user_id
+    ) {
+      loadSessions();
+    }
+  }, [location.pathname, user?.user_id]);
+
   const loadSessions = useCallback(async () => {
     if (!user?.user_id) return;
+    console.log("userId : ", user?.user_id);
 
     setIsLoading(true);
     try {

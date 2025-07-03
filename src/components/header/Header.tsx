@@ -74,14 +74,12 @@ const Header = () => {
                 >
                   Chat
                 </Link>
-                {user?.role === UserRole.ADMIN && (
-                  <Link
-                    to="/admin"
-                    className="text-gray-700 hover:text-orange-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
-                  >
-                    Admin Dashboard
-                  </Link>
-                )}
+                <Link
+                  to="/admin"
+                  className="text-gray-700 hover:text-orange-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                >
+                  Admin Dashboard
+                </Link>
                 {user?.role === UserRole.STUDENT && (
                   <Link
                     to="/student"
