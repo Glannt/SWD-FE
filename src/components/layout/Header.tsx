@@ -67,6 +67,12 @@ const Header = () => {
             <Link to="/chat" className="text-gray-600 hover:text-gray-900">
               Chat với AI
             </Link>
+            {/* Link Dashboard cho admin */}
+            {user?.role === "admin" && (
+              <Link to="/admin" className="text-gray-600 hover:text-gray-900">
+                Dashboard
+              </Link>
+            )}
 
             {/* Auth Section */}
             {isAuthenticated ? (
