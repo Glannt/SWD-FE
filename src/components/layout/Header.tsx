@@ -17,6 +17,10 @@ const Header = () => {
 
   const handleLogout = async () => {
     await logout();
+    setTimeout(() => {
+      // You can add navigation logic here if needed
+      window.location.reload(); // Simple reload for now
+    }, 1500);
     setIsDropdownOpen(false);
   };
 

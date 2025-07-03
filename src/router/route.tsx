@@ -100,7 +100,7 @@ export const router = createBrowserRouter([
     ],
   },
   {
-    path: "auth",
+    path: "/auth",
     element: <AppLayoutWithScroll />,
     children: [
       {
@@ -117,6 +117,7 @@ export const router = createBrowserRouter([
       },
     ],
   },
+
   // {
   //   path: "/reset-password",
   //   element: <ResetPassword />,

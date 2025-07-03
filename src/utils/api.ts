@@ -64,7 +64,11 @@ api.interceptors.response.use(
     const originalRequest = error.config;
 
     // Handle 401 errors (unauthorized)
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (
+      error.response?.status === 401 &&
+      error.response?.status === 404 &&
+      !originalRequest._retry
+    ) {
       if (isRefreshing) {
         // If already refreshing, add to queue
         return new Promise((resolve, reject) => {

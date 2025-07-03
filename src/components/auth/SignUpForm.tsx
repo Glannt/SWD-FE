@@ -5,12 +5,14 @@ import Input from "../form/input/InputField";
 import Checkbox from "../form/input/Checkbox";
 import Button from "../ui/button/Button";
 import { RegisterDto } from "../../types/api";
+import { useNavigate } from "react-router";
 
 interface SignUpFormProps {
   onSwitchMode?: () => void;
 }
 
 const SignUpForm = ({ onSwitchMode }: SignUpFormProps) => {
+  const navigate = useNavigate();
   const { register } = useAuth();
   const [formData, setFormData] = useState<RegisterDto>({
     email: "",
@@ -87,7 +89,8 @@ const SignUpForm = ({ onSwitchMode }: SignUpFormProps) => {
       // Optional: Redirect or close modal after successful registration
       setTimeout(() => {
         // You can add navigation logic here if needed
-        window.location.reload(); // Simple reload for now
+        // window.location.reload(); // Simple reload for now
+        navigate("/");
       }, 2000);
     } catch (err: unknown) {
       console.error("Registration error:", err);

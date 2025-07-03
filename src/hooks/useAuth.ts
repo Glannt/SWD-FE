@@ -23,17 +23,20 @@ export const useAuth = (): UseAuthReturn => {
   const [isLoading, setIsLoading] = useState(true);
 
   const refreshUser = useCallback(async () => {
-    // console.log("useAuth.refreshUser - Starting refresh");
+    const token = localStorage.getItem("access_token");
+    if (!token) {
+      setUser(null);
+      setIsLoading(false);
+      return;
+    }
     try {
       const currentUser = await authService.getCurrentUser();
-      // console.log("useAuth.refreshUser - Got user:", currentUser);
       setUser(currentUser);
     } catch (error) {
       console.error("useAuth.refreshUser - Failed to refresh user:", error);
       setUser(null);
     } finally {
       setIsLoading(false);
-      // console.log("useAuth.refreshUser - Finished, isLoading:", false);
     }
   }, []);
 
@@ -73,6 +76,7 @@ export const useAuth = (): UseAuthReturn => {
     setIsLoading(true);
     try {
       await authService.logout();
+
       setUser(null);
     } catch (error) {
       console.error("Logout error:", error);
@@ -88,13 +92,6 @@ export const useAuth = (): UseAuthReturn => {
   }, [refreshUser]);
 
   const isAuthenticated = !!user;
-  console.log("useAuth - Current state:", {
-    user,
-    isAuthenticated,
-    isLoading,
-    localStorageToken: localStorage.getItem("access_token"),
-    localStorageUser: localStorage.getItem("user"),
-  });
 
   return {
     user,
