@@ -89,9 +89,10 @@ const SignUpForm = ({ onSwitchMode }: SignUpFormProps) => {
       // Optional: Redirect or close modal after successful registration
       setTimeout(() => {
         // You can add navigation logic here if needed
-        // window.location.reload(); // Simple reload for now
+
         navigate("/");
-      }, 2000);
+        window.location.reload(); // Simple reload for now
+      }, 1000);
     } catch (err: unknown) {
       console.error("Registration error:", err);
 
