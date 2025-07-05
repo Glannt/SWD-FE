@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import AuthModal from "../auth/AuthModal";
+import NotificationBell from "../NotificationBell";
 
 const Header = () => {
   const { user, isAuthenticated, logout } = useAuth();
@@ -73,7 +74,8 @@ const Header = () => {
                 Dashboard
               </Link>
             )}
-
+            {/* Notification Bell */}
+            <NotificationBell />
             {/* Auth Section */}
             {isAuthenticated ? (
               // User Avatar and Dropdown
@@ -137,7 +139,7 @@ const Header = () => {
 
                     {/* Settings */}
                     <Link
-                      to="/settings"
+                      to="/profile/settings"
                       className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                       onClick={() => setIsDropdownOpen(false)}
                     >

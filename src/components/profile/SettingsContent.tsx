@@ -2,10 +2,16 @@ import { useState } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import Button from "../ui/button/Button";
 import ResetPasswordForm from "./ResetPasswordForm";
+import { useFcmToken } from "../../hooks/useFcmToken";
 
 const SettingsContent = () => {
   const { logout } = useAuth();
   const [showResetPasswordForm, setShowResetPasswordForm] = useState(false);
+  const [notifStatus, setNotifStatus] = useState(Notification.permission);
+  const [notifLoading, setNotifLoading] = useState(false);
+  const [notifError, setNotifError] = useState("");
+  const jwt = localStorage.getItem("access_token");
+  const registerFcmToken = useFcmToken(jwt);
 
   const handleLogout = async () => {
     try {
@@ -14,6 +20,19 @@ const SettingsContent = () => {
       window.location.href = "/";
     } catch (error) {
       console.error("Logout failed:", error);
+    }
+  };
+
+  const handleEnableNotification = async () => {
+    setNotifLoading(true);
+    setNotifError("");
+    const granted = await registerFcmToken();
+    setNotifLoading(false);
+    setNotifStatus(Notification.permission);
+    if (!granted) {
+      setNotifError(
+        "Bạn cần cho phép quyền thông báo để nhận thông báo từ hệ thống."
+      );
     }
   };
 
@@ -58,6 +77,43 @@ const SettingsContent = () => {
                 <Button variant="outline" size="sm">
                   Cài đặt
                 </Button>
+              </div>
+              {/* Notification Settings */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-sm font-medium text-gray-900">
+                    Thông báo trình duyệt
+                  </h3>
+                  <p className="text-sm text-gray-500">
+                    Nhận thông báo quan trọng từ hệ thống qua trình duyệt
+                  </p>
+                  {notifStatus === "granted" && (
+                    <span className="text-green-600 text-xs font-semibold">
+                      Đã bật thông báo
+                    </span>
+                  )}
+                  {notifStatus === "denied" && (
+                    <span className="text-red-600 text-xs font-semibold">
+                      Bạn đã từ chối quyền thông báo. Hãy bật lại trong cài đặt
+                      trình duyệt.
+                    </span>
+                  )}
+                  {notifError && (
+                    <div className="text-red-500 text-xs mt-1">
+                      {notifError}
+                    </div>
+                  )}
+                </div>
+                {notifStatus === "default" && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleEnableNotification}
+                    disabled={notifLoading}
+                  >
+                    {notifLoading ? "Đang bật..." : "Bật thông báo"}
+                  </Button>
+                )}
               </div>
             </div>
           </div>

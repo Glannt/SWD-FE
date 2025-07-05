@@ -67,9 +67,9 @@ const SignInForm = ({ onSwitchMode }: SignInFormProps) => {
 
       // Chỉ reload khi đăng nhập thành công
       setTimeout(() => {
-        // window.location.reload();
         navigate("/");
-      }, 1500);
+        window.location.reload();
+      }, 1000);
     } catch (err: unknown) {
       console.error("Login error:", err);
       // Khi lỗi chỉ setError, không reload, không đóng modal
