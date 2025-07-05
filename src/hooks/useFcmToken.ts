@@ -11,8 +11,7 @@ export const useFcmToken = (
       const permission = await Notification.requestPermission();
       if (permission !== "granted") return false;
       const token = await getToken(messaging, {
-        vapidKey:
-          "BMEHyC1gZVzqqRt6NP-EeVRyUVm7TRqf6S3NY9ivp9nsNhVmu7alUCnsJayXxfuXJ1LBZC7scv0wndzLChcYdzI",
+        vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY,
       });
       if (!token) return false;
       await fetch(`${apiBaseUrl}/api/v1/users/fcm-token`, {
