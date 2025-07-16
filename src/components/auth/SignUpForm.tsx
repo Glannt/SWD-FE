@@ -36,6 +36,10 @@ const SignUpForm = ({ onSwitchMode }: SignUpFormProps) => {
     if (error) setError("");
   };
 
+  const handleLoginGoogle = () => {
+    window.location.href = "http://localhost:3000/api/v1/auth/google";
+  };
+
   const validateForm = (): boolean => {
     // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -131,7 +135,7 @@ const SignUpForm = ({ onSwitchMode }: SignUpFormProps) => {
               variant="outline"
               className="w-full"
               onClick={() => {
-                // Xử lý đăng ký bằng Google
+                handleLoginGoogle();
               }}
               disabled={isLoading}
             >

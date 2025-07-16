@@ -75,7 +75,7 @@ const Header = () => {
               </Link>
             )}
             {/* Notification Bell */}
-            <NotificationBell />
+            {user?.role === "admin" && <NotificationBell />}
             {/* Auth Section */}
             {isAuthenticated ? (
               // User Avatar and Dropdown
