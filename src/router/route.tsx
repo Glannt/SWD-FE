@@ -16,6 +16,10 @@ import HomePage from "../pages/HomePage";
 import UserManagement from "../pages/Dashboard/UserManagement";
 import ChatSessionManagement from "../pages/Dashboard/ChatSessionManagement";
 import AdminPage from "../pages/Dashboard/AdminPage";
+import ProfileContent from "../components/profile/ProfileContent";
+import SettingsContent from "../components/profile/SettingsContent";
+import ResetPassword from "../pages/AuthPages/ResetPassword";
+import OAuthCallback from "../pages/OauthCallBack";
 
 // Wrapper component để bao gồm ScrollToTop trong Router context
 const AppLayoutWithScroll = () => (
@@ -67,6 +71,16 @@ export const router = createBrowserRouter([
             <ProfilePage />
           </ProtectedRoute>
         ),
+        children: [
+          {
+            index: true,
+            element: <ProfileContent />,
+          },
+          {
+            path: "settings",
+            element: <SettingsContent />,
+          },
+        ],
       },
       {
         path: "student",
@@ -123,12 +137,16 @@ export const router = createBrowserRouter([
     ],
   },
 
-  // {
-  //   path: "/reset-password",
-  //   element: <ResetPassword />,
-  // },
+  {
+    path: "/reset-password",
+    element: <ResetPassword />,
+  },
   {
     path: "*",
     element: <NotFound />,
+  },
+  {
+    path: "/oauth-callback",
+    element: <OAuthCallback />,
   },
 ]);

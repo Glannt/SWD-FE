@@ -36,6 +36,10 @@ const SignUpForm = ({ onSwitchMode }: SignUpFormProps) => {
     if (error) setError("");
   };
 
+  const handleLoginGoogle = () => {
+    window.location.href = "http://localhost:3000/api/v1/auth/google";
+  };
+
   const validateForm = (): boolean => {
     // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -89,9 +93,10 @@ const SignUpForm = ({ onSwitchMode }: SignUpFormProps) => {
       // Optional: Redirect or close modal after successful registration
       setTimeout(() => {
         // You can add navigation logic here if needed
-        // window.location.reload(); // Simple reload for now
+
         navigate("/");
-      }, 2000);
+        window.location.reload(); // Simple reload for now
+      }, 1000);
     } catch (err: unknown) {
       console.error("Registration error:", err);
 
@@ -130,7 +135,7 @@ const SignUpForm = ({ onSwitchMode }: SignUpFormProps) => {
               variant="outline"
               className="w-full"
               onClick={() => {
-                // Xử lý đăng ký bằng Google
+                handleLoginGoogle();
               }}
               disabled={isLoading}
             >

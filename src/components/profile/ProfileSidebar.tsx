@@ -1,12 +1,14 @@
 import { useAuth } from "../../hooks/useAuth";
+import { useLocation, useNavigate } from "react-router-dom";
 
-interface ProfileSidebarProps {
-  activeTab: "profile" | "settings";
-  onTabChange: (tab: "profile" | "settings") => void;
-}
-
-const ProfileSidebar = ({ activeTab, onTabChange }: ProfileSidebarProps) => {
+const ProfileSidebar = () => {
   const { user } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const activeTab = location.pathname.endsWith("/settings")
+    ? "settings"
+    : "profile";
 
   const getUserInitials = (fullName: string) => {
     return fullName
@@ -41,7 +43,7 @@ const ProfileSidebar = ({ activeTab, onTabChange }: ProfileSidebarProps) => {
         <ul className="space-y-2">
           <li>
             <button
-              onClick={() => onTabChange("profile")}
+              onClick={() => navigate("/profile")}
               className={`w-full flex items-center px-4 py-3 text-left rounded-lg transition-colors ${
                 activeTab === "profile"
                   ? "bg-orange-50 text-orange-700 border border-orange-200"
@@ -66,7 +68,7 @@ const ProfileSidebar = ({ activeTab, onTabChange }: ProfileSidebarProps) => {
           </li>
           <li>
             <button
-              onClick={() => onTabChange("settings")}
+              onClick={() => navigate("/profile/settings")}
               className={`w-full flex items-center px-4 py-3 text-left rounded-lg transition-colors ${
                 activeTab === "settings"
                   ? "bg-orange-50 text-orange-700 border border-orange-200"

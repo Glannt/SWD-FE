@@ -24,6 +24,10 @@ const SignInForm = ({ onSwitchMode }: SignInFormProps) => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
+  const handleLoginGoogle = () => {
+    window.location.href = "http://localhost:3000/api/v1/auth/google";
+  };
+
   const handleInputChange = (field: keyof LoginRequest, value: string) => {
     setFormData((prev) => ({
       ...prev,
@@ -67,9 +71,9 @@ const SignInForm = ({ onSwitchMode }: SignInFormProps) => {
 
       // Chỉ reload khi đăng nhập thành công
       setTimeout(() => {
-        // window.location.reload();
         navigate("/");
-      }, 1500);
+        window.location.reload();
+      }, 1000);
     } catch (err: unknown) {
       console.error("Login error:", err);
       // Khi lỗi chỉ setError, không reload, không đóng modal
@@ -107,7 +111,7 @@ const SignInForm = ({ onSwitchMode }: SignInFormProps) => {
           variant="outline"
           className="w-full"
           onClick={() => {
-            // Xử lý đăng nhập bằng Google
+            handleLoginGoogle();
           }}
           disabled={isLoading}
         >
