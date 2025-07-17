@@ -20,6 +20,7 @@ import ProfileContent from "../components/profile/ProfileContent";
 import SettingsContent from "../components/profile/SettingsContent";
 import ResetPassword from "../pages/AuthPages/ResetPassword";
 import OAuthCallback from "../pages/OauthCallBack";
+import UploadDocumentsPage from "../pages/Dashboard/UploadDocumentsPage";
 
 // Wrapper component để bao gồm ScrollToTop trong Router context
 const AppLayoutWithScroll = () => (
@@ -110,6 +111,17 @@ export const router = createBrowserRouter([
           { index: true, element: <AdminDashboard /> },
           { path: "users", element: <UserManagement /> },
           { path: "chat-sessions", element: <ChatSessionManagement /> },
+          {
+            path: "upload-documents",
+            element: (
+              <ProtectedRoute
+                allowedRoles={[UserRole.ADMIN]}
+                redirectTo="/auth/signin"
+              >
+                <UploadDocumentsPage />
+              </ProtectedRoute>
+            ),
+          },
         ],
       },
       {

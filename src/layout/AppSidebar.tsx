@@ -28,6 +28,11 @@ const navItems: NavItem[] = [
     name: "Quản lý Chat Sessions",
     path: "/admin/chat-sessions",
   },
+  {
+    icon: <TableIcon />,
+    name: "Upload tài liệu",
+    path: "/admin/upload-documents",
+  },
 ];
 
 const othersItems: NavItem[] = [];
