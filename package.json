@@ -27,6 +27,7 @@
     "firebase": "^11.10.0",
     "flatpickr": "^4.6.13",
     "lucide-react": "^0.515.0",
+    "rc-upload": "^4.9.2",
     "react": "^19.0.0",
     "react-apexcharts": "^1.7.0",
     "react-dnd": "^16.0.1",

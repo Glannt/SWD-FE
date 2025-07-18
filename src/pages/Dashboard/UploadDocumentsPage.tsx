@@ -45,7 +45,7 @@ const UploadDocumentsPage: React.FC = () => {
       }
     } catch (err) {
       message.error("Không thể tải danh sách file");
-      // eslint-disable-next-line no-console
+
       console.error(err);
     }
   };
@@ -77,7 +77,7 @@ const UploadDocumentsPage: React.FC = () => {
         if (onSuccess) onSuccess({}, file);
       } catch (err) {
         message.error("Upload thất bại!");
-        // eslint-disable-next-line no-console
+
         console.error(err);
         if (onError) onError(err as Error);
       } finally {
@@ -101,7 +101,7 @@ const UploadDocumentsPage: React.FC = () => {
       fetchFiles(); // Chỉ fetch lại dữ liệu, không reload trang
     } catch (err) {
       message.error("Xóa file thất bại!");
-      // eslint-disable-next-line no-console
+
       console.error(err);
     } finally {
       setDeletingId(null);
