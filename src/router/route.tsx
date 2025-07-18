@@ -21,6 +21,8 @@ import SettingsContent from "../components/profile/SettingsContent";
 import ResetPassword from "../pages/AuthPages/ResetPassword";
 import OAuthCallback from "../pages/OauthCallBack";
 import UploadDocumentsPage from "../pages/Dashboard/UploadDocumentsPage";
+import VerifySuccess from "../pages/VerifySuccess";
+import VerifyFail from "../pages/VerifyFail";
 
 // Wrapper component để bao gồm ScrollToTop trong Router context
 const AppLayoutWithScroll = () => (
@@ -160,5 +162,13 @@ export const router = createBrowserRouter([
   {
     path: "/oauth-callback",
     element: <OAuthCallback />,
+  },
+  {
+    path: "/verify-success",
+    element: <VerifySuccess />,
+  },
+  {
+    path: "/verify-fail",
+    element: <VerifyFail />,
   },
 ]);
