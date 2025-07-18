@@ -25,7 +25,12 @@ const SignInForm = ({ onSwitchMode }: SignInFormProps) => {
   const [success, setSuccess] = useState("");
 
   const handleLoginGoogle = () => {
-    window.location.href = "http://localhost:3000/api/v1/auth/google";
+    const baseUrl = import.meta.env.VITE_API_URL;
+    const frontendUrl = `${window.location.protocol}//${window.location.host}`;
+
+    window.location.href = `${baseUrl}/auth/google?redirect=${encodeURIComponent(
+      frontendUrl + "/oauth-callback"
+    )}`;
   };
 
   const handleInputChange = (field: keyof LoginRequest, value: string) => {

@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "prebuild": "node ../scripts/generate-firebase-sw-env.js",
+    "predev": "node scripts/generate-firebase-sw-env.cjs",
+    "prebuild": "node scripts/generate-firebase-sw-env.cjs",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
@@ -24,6 +25,7 @@
     "apexcharts": "^4.1.0",
     "axios": "^1.10.0",
     "clsx": "^2.1.1",
+    "dotenv": "^17.2.0",
     "firebase": "^11.10.0",
     "flatpickr": "^4.6.13",
     "lucide-react": "^0.515.0",
