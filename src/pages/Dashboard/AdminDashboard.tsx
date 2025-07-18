@@ -7,7 +7,11 @@ import { IoMdNotificationsOutline } from "react-icons/io";
 import { useAuth } from "../../hooks/useAuth";
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import {
+  fetchSummary,
+  fetchSessions,
+  fetchChatUsers,
+} from "../../services/admin-dashboard.service";
 
 export default function AdminDashboard() {
   const { user, logout } = useAuth();
@@ -32,48 +36,21 @@ export default function AdminDashboard() {
   }, []);
 
   useEffect(() => {
-    const fetchSummary = async () => {
-      try {
-        const res = await axios.get(
-          `${
-            import.meta.env.VITE_API_URL || "http://localhost:3000/api/v1"
-          }/admin/dashboard/summary`,
-          { withCredentials: true }
-        );
-        setSummary(res.data.data || res.data);
-      } catch (err: unknown) {
+    fetchSummary()
+      .then((data) => setSummary(data))
+      .catch((err) => {
         console.error("Không thể tải dữ liệu thống kê", err);
-      }
-    };
-    fetchSummary();
-    const fetchSessions = async () => {
-      try {
-        const res = await axios.get(
-          `${
-            import.meta.env.VITE_API_URL || "http://localhost:3000/api/v1"
-          }/admin/dashboard/sessions`,
-          { withCredentials: true }
-        );
-        setSessions(res.data.data || res.data);
-      } catch (err: unknown) {
+      });
+    fetchSessions()
+      .then((data) => setSessions(data))
+      .catch((err) => {
         console.error("Không thể tải danh sách session chat", err);
-      }
-    };
-    fetchSessions();
-    const fetchChatUsers = async () => {
-      try {
-        const res = await axios.get(
-          `${
-            import.meta.env.VITE_API_URL || "http://localhost:3000/api/v1"
-          }/admin/dashboard/users`,
-          { withCredentials: true }
-        );
-        setChatUsers(res.data.data || res.data);
-      } catch (err: unknown) {
+      });
+    fetchChatUsers()
+      .then((data) => setChatUsers(data))
+      .catch((err) => {
         console.error("Không thể tải danh sách user đã chat", err);
-      }
-    };
-    fetchChatUsers();
+      });
   }, []);
 
   const getInitials = (fullName: string) => {

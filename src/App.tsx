@@ -15,6 +15,7 @@ export default function App() {
 
   useFcmForegroundNotification((payload) => {
     addNotification(payload);
+
     toast(payload.notification?.title + ": " + payload.notification?.body);
   });
 
