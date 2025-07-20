@@ -3,7 +3,7 @@ import { messaging } from "../firebase-config";
 
 export const useFcmToken = (
   jwt: string | null,
-  apiBaseUrl = "http://localhost:3000"
+  apiBaseUrl = import.meta.env.VITE_API_URL
 ) => {
   const registerFcmToken = async () => {
     if (!jwt) return false;
@@ -14,7 +14,7 @@ export const useFcmToken = (
         vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY,
       });
       if (!token) return false;
-      await fetch(`${apiBaseUrl}/api/v1/users/fcm-token`, {
+      await fetch(`${apiBaseUrl}/users/fcm-token`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
