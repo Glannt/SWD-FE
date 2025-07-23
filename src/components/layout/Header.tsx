@@ -3,6 +3,10 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import AuthModal from "../auth/AuthModal";
 import NotificationBell from "../NotificationBell";
+import { useNotification } from "../../context/NotificationContext";
+import { useFcmToken } from "../../hooks/useFcmToken";
+import toast from "react-hot-toast";
+import { useFcmForegroundNotification } from "../../hooks/useFcmForegroundNotification";
 
 const Header = () => {
   const { user, isAuthenticated, logout } = useAuth();
@@ -10,6 +14,22 @@ const Header = () => {
   const [authMode, setAuthMode] = useState<"signin" | "signup">("signin");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const jwt = localStorage.getItem("access_token");
+  const registerFcmToken = useFcmToken(jwt);
+  const { addNotification } = useNotification();
+
+  // Đăng ký lấy FCM token và gửi lên server
+  useEffect(() => {
+    if (jwt) {
+      registerFcmToken();
+    }
+  }, [jwt, registerFcmToken]);
+
+  // Đăng ký lắng nghe thông báo foreground
+  useFcmForegroundNotification((payload) => {
+    addNotification(payload);
+    toast(`${payload.notification?.title}: ${payload.notification?.body}`);
+  });
 
   const openAuthModal = (mode: "signin" | "signup") => {
     setAuthMode(mode);
